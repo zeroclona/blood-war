@@ -18,7 +18,11 @@ public class AvengingLighting extends Spell
   function onSpellEffect(unit caster, unit target)
     print(caster.getName()+" casts an Avenging Lightning")
     let lvl = caster.getAbilityLevel(id)
-    forNearestUnit(target.getPos(), enemyradius.run(lvl), Filter(function stdEnemyFilter)) (unit u) ->
+    var g = CreateGroup()
+    forUnitsInRange(target.getPos(), enemyradius.run(lvl)) (unit u) ->
+
+
     //TUT ODIN UNIT NADO NE ODIN
+
 
     //if caster.isEnemyOf(u) and
