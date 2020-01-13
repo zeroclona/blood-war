@@ -1,0 +1,57 @@
+package Cobra
+import UnitIds
+import HeroIds
+import UnitObjEditing
+import ObjectIds
+import AbilityIds
+import CobraConsts
+
+@compiletime function genObj()
+  new HeroDefinition(HeroIds.cobra, UnitIds.jaina)
+    ..setName(Cobra.name)
+    ..setProperNames(Cobra.propname1)
+    ..setProperNamesUsed(1)
+    ..setTooltipBasic(Cobra.tooltipbasic)
+    ..setTooltipExtended(Cobra.tooltipext)
+    ..setHeroAbilities(commaList(AbilityIds.chainLightning1, AbilityIds.blizzard, AbilityIds.shadowHunterHealingWave, AbilityIds.massTeleport))
+    ..setNormalAbilities(commaList(AbilityIds.inventory))
+    ..setIconGameInterface(Cobra.icon)
+    ..setIconScoreScreen(Cobra.scorescreenicon)
+    ..setModelFile(Cobra.modelfile)
+    ..setCollisionSize(Cobra.colsize)
+    ..setHotkey(Cobra.hotkey)
+    ..setManaMaximum(Cobra.basemp)
+    ..setHitPointsMaximumBase(Cobra.basehp)
+    ..setStartingAgility(0)
+    ..setStartingIntelligence(0)
+    ..setStartingStrength(0)
+    ..setAgilityPerLevel(0)
+    ..setStrengthPerLevel(0)
+    ..setIntelligencePerLevel(0)
+    ..setPrimaryAttribute(Cobra.primattribute)
+    ..setManaRegeneration(Cobra.baseMPps)
+    ..setHitPointsRegenerationRate(Cobra.baseHPps)
+    ..setHitPointsRegenerationType("always")
+    ..setAttack1Range(Cobra.attackrange)
+    ..setAttacksEnabled(1)
+    ..setAttack1CooldownTime(Cobra.baseattacktime)
+    ..setAttack1DamageBase(Cobra.baseattack)
+    ..setAttack1ProjectileArt(Cobra.projart)
+    ..setAttack1ProjectileArc(1.)  //////////
+    ..setAttack1ProjectileHomingEnabled(true)
+    ..setAttack1ProjectileSpeed(Cobra.projspeed)
+    ..setUnitSoundSet(Cobra.soundset)
+    ..setTurnRate(Cobra.turnrate)
+    ..setButtonPositionX(Cobra.buttonX)
+    ..setButtonPositionY(Cobra.buttonY)
+    ..setDefenseBase(Cobra.basephisarmor)
+    ..setSpeedBase(Cobra.basespeed)
+    ..setSightRadiusDay(Cobra.sightday)
+    ..setSightRadiusNight(Cobra.sightnight)
+
+    ..setRace(Race.Human)
+    ..setUpgradesUsed("")
+    ..setFoodCost(0)
+    ..setGoldCost(0)
+    ..setLumberCost(0)
+    ..hideHeroDeathMsg(true)

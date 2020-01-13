@@ -1,0 +1,122 @@
+package PlayerData
+import public HeroEntity
+import TeamData
+import BloodWarOverall
+
+import HashMap
+import ClosureForGroups
+
+
+public class PlayerData
+  static var list = new LinkedList<thistype>
+  private int index
+
+  player p
+  private string name = ""
+  private string nameColored = ""
+  HeroEntity mainhero
+  private var herolist = new LinkedList<HeroEntity>
+  TeamData team
+  // heroes
+  // color                     //NEXT TO DO!
+  //? gold
+  //!!! Stats
+  //!!! Options
+  private real incomeSelf = 0.            //? не надо ли это убрать в IncomeInc
+
+  construct ()
+    list.add(this)
+
+
+
+  function name() returns string
+    return name ///
+
+  function nameColored() returns string
+    return nameColored ///
+
+  function setIncome(real inc)           //? не надо ли это убрать в IncomeInc
+    //stats++
+    incomeSelf = inc
+
+  function setGold(int val)
+    //stats++
+    p.setGold(val)
+
+  function addGold(int val)
+    //stats++
+    p.addGold(val)
+
+  function subGold(int val)
+    //stats++
+    p.subGold(val)
+
+  function addHero(HeroEntity hero)
+    herolist.addtoStart(hero)
+
+  function herolist() returns LinkedList<HeroEntity>
+    return herolist
+
+  private function initName()   //? улучшить поиск цветных кодов (|cxxxxxx...) (хорспул?)
+    name = p.getName()
+    /*string tempName = p.getName()
+    ..trim()
+
+    if tempName.startsWith("|c") or tempName.startsWith("|C")
+      tempName
+        ..ltrim(tempName.substring(0, 10))
+        ..rtrim("|r")
+        ..rtrim("|R")
+    name = tempName
+    p.setName(name)
+    nameColored = p.getNameColored()
+    p.setName(p.getNameColored())*/
+
+  function addToTeam(TeamData td)
+    team = td
+    td.add(this)
+
+  // static function swap(thistype pl1, thistype pl2)
+  //   var ind1 = pl1.index
+  //   var ind2 = pl2.index
+  //   list.set(ind2, pl1)
+  //   list.set(ind1, pl2)
+  //   pl1.index = ind2
+  //   pl2.index = ind1
+    ///swap teamami
+
+
+  static function initPlayerDatas()
+    PlayerData pd
+    for int i = 0 to playerCount
+      pd = new PlayerData()
+      pd.p = players[i]
+      pd.index=i
+      pd..setIncome(1.)
+      ..initName()
+
+
+
+
+
+
+  function onUpdate()
+    //stats update
+
+function initPrimalTeams()
+  for pd in PlayerData.list
+    if pd.p.getId() < playerCount
+      pd.addToTeam(pd.p.getId() < 4 ? goodies : baddies)
+
+public function PlayerData.printTimed(string msg, real duration)
+  printTimedToPlayer(msg, duration, this.p)
+
+public function player.getData() returns PlayerData
+  return PlayerData.list.get(this.getId())
+
+public function unit.getPlayerData() returns PlayerData
+  return PlayerData.list.get(this.getOwner().getId())
+
+public function initPlayerData()
+  PlayerData.initPlayerDatas()
+  initPrimalTeams()

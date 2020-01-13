@@ -1,0 +1,42 @@
+package Conflagration
+import ConflagrationObjects
+import ClosureTimers
+import ClosureForGroups
+import HashMap
+import ClosureEvents
+
+let buffId = BUFF_OBJ.abilId
+let buffMap = new HashMap<unit, CallbackSingle>()
+
+function meteorFall(unit caster, vec2 tpos, angle angle)
+  flashEffect(SPELL_EFFECT_PATH, tpos, 1., angle)
+  doAfter(SPELL_EFFECT_DURATION) ->
+    forUnitsInRange(tpos, SPELL_RADIUS) u ->
+      if u.hasAbility(buffId)
+        caster.damageTarget(u, BONUS_DAMAGE)
+        flashEffect(BONUS_EFFECT_PATH, tpos)
+
+      caster.damageTarget(u, BASE_DAMAGE)
+      u.addAbility(buffId)
+      if buffMap.has(u)
+        destroy buffMap.get(u)
+      let cb = doAfter(BUFF_DURATION) ->
+        if buffMap.has(u)
+          buffMap.remove(u)
+          u.removeAbility(buffId)
+      buffMap.put(u, cb)
+
+init
+  EventListener.onPointCast(SPELL_ID) (caster, tpos) ->
+    var f = CreateForce()
+      ..enumPlayers(null)
+    //TransmissionFromUnitWithNameBJ(f, caster, GetUnitName(caster), null, "А ну-ка прочь с моей лужайки!", 10, 10, false)
+    f.destr()
+    let _ang = (tpos-caster.getPos()).getAngle()// AngleBetweenPoints(, tpos)
+    let napravl =  caster.getPos().normalizedPointerTo(tpos)
+    real i = 0
+    while(i < 1)
+      doAfter(i*.03) ->
+        meteorFall(caster, tpos +napravl*i*80, (i).fromDeg())
+      i+=1
+      //GetRandomReal(0, 359).fromDeg()

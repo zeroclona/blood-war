@@ -1,0 +1,36 @@
+package Initialization
+import ClosureTimers
+import Demon
+import DemonVisionBlocker
+import HeroEntity
+import Influence
+import EntityManagement
+import PlayerData
+import Shop
+import TeamData
+import RecentDamage
+import KillingHeroEntity
+import GameStart
+import IngameTables
+import Statistics
+
+init
+
+  doAfter(0.0) ->
+
+  doAfter(0.01) ->
+    initDemon()
+    VisBlockCoords.initialize()
+    initPlayerData()
+    HeroEntity.initialize()
+    RecentDamage.initlialize()
+    registerHeroDeaths() //////////INITLATER!!!!
+    startEntityLoop()
+    initShop()
+    initTeams() //// ????????
+    gameStartInit()
+    Influence.initInfluence()
+    initStatistics()
+    UpdTables.initialize()
+
+  doAfter(0.1) ->

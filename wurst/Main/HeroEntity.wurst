@@ -1,0 +1,126 @@
+package HeroEntity
+import Entity
+import initlater PlayerData
+import HeroesData
+import initlater TeamData
+import HashMap
+import ClosureForGroups
+import OnUnitEnterLeave
+import initlater KillingHeroEntity
+
+public class Attribute
+  private real value
+
+  construct()
+    value = 0
+
+  function add(real val)
+    value += val
+
+  function get() returns real
+    return value
+  /**Are you sure?*/
+  function setv(real val)
+    value = val
+
+public class AttributeList
+  Attribute spellpower
+  Attribute spellarmor
+
+  construct()
+    spellpower = new Attribute()
+    spellarmor = new Attribute()
+
+  construct(real sppower, real sparmor)
+    spellpower = new Attribute()
+    spellarmor = new Attribute()
+
+  function setAttributes(real sppower, real sparmor)
+    spellpower.setv(sppower)
+    spellpower.setv(sparmor)
+
+public class Unit2Entity extends UnitEntity
+  AttributeList attlist
+
+  construct(unit u)
+    super(u)
+    attlist = new AttributeList()
+    // Добавить установку атрибутов из описания героя
+
+
+public class HeroEntity extends Unit2Entity
+  static let list = new IterableMap<unit,thistype>
+  PlayerData ownerData
+  bool legitimus = true
+  timer respTimer
+  bool isMain = false
+  // private string icon
+  //? abilities
+
+//  function DeathCost() returns real
+// 	function RespTime() returns real
+// 	function Revive()
+// ?	function Reward(int val)
+// 	function TeleportHome()
+  construct(unit u)
+    super(u)
+    ownerData = u.getPlayerData()
+    list.put(u,this)
+
+  construct(unit u, bool isLegit)
+    super(u)
+    ownerData = u.getPlayerData()
+    list.put(u,this)
+    legitimus = isLegit
+
+  // function setIcon()
+  //   icon = HeroIds.getIcon(actor.getTypeId())
+
+  function icon() returns string
+    return HeroIds.icon(actor.getTypeId())
+
+  function instantRevive()
+    if actor.isAlive()
+      error("Attempt to revive alive hero")
+    else
+      actor.revive(this.ownerData.team.respPoint(), true)
+      respTimer.release()
+
+  function revive(real time)
+    respTimer = getTimer()..setData(this castTo int)
+    ..start(time) ->
+      var t = GetExpiredTimer()
+      (t.getData() castTo HeroEntity).instantRevive()
+      t.release()
+
+  function respRemainingTime() returns real
+    return respTimer.getRemaining()
+    //сообщение
+    //награда
+    //таймер/респаун
+    //обновление статистики
+    //Specific death
+
+
+  static function initialize()
+
+    forUnitsAll()(unit u) ->
+      if IsUnitType(u, UNIT_TYPE_HERO)
+        if u.getEntity() != null
+          u.setEntity(null)
+        let he = new HeroEntity(u)
+     //   new LastDamage(he)
+    onEnter()->
+      let u = GetEnteringUnit()
+      if IsUnitType(u, UNIT_TYPE_HERO) and not list.hasKey(u)
+        if u.getEntity() != null
+          u.setEntity(null)
+        let he = new HeroEntity(u)
+     //   new LastDamage(he)
+    for pd in PlayerData.list
+      HeroEntity.list.forEach() (unit u, HeroEntity he) ->
+        if u.getOwner()==pd.p and not pd.herolist().has(he)
+          pd.herolist().add(he)
+
+public function unit.getHeroEntity() returns HeroEntity
+  return HeroEntity.list.get(this)

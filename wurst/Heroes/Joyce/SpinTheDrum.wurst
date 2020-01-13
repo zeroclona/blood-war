@@ -1,0 +1,132 @@
+package SpinTheDrum
+import JoyceHeroWithSpells
+import OrderIds
+import ClosureEvents
+import ClosureForGroups
+import ErrorHandling
+import InstantDummyCaster
+import HashList
+import HashMap
+
+class abil
+  static HashList<unit> activeUnits
+
+  int realabilcode
+  int fakeabilcode
+  bool isFaked = false
+  timer cooldownTimer
+
+  construct(int abilId, int fakeId)
+    if activeUnits == null
+      activeUnits = new HashList<unit>()
+    this.realabilcode = abilId
+    this.fakeabilcode = fakeId
+    this.cooldownTimer = CreateTimer()
+
+  ondestroy
+    cooldownTimer.destr()
+
+  function fakeAbilityCD(unit u, real durCD) returns bool
+    bool success = false
+    if not isFaked
+      var lvl = u.getAbilityLevel(realabilcode)
+      activeUnits.add(u)
+      u..hideAbility(realabilcode, true)
+       ..addAbility(fakeabilcode)
+       ..endAbilityCooldown(fakeabilcode)
+       ..setAbilityCooldown(fakeabilcode, lvl, durCD)
+      success = InstantDummyCaster.castTarget(DUMMY_PLAYER, AbilityIds.stormBolt, 1, OrderIds.creepthunderbolt, u)
+      if success
+        //SaveInteger(has, parentKey, childKey, value)
+        TimerStart(cooldownTimer, durCD, false, -> begin
+          DestroyTimer(GetExpiredTimer())
+          ////////
+        end)
+    return success
+
+  function swapToPos(int x)
+    BlzSetAbilityPosX(realabilcode, x)
+    if isFaked
+      BlzSetAbilityPosX(fakeabilcode, x)
+
+
+
+
+
+class Spinner
+  private static thistype array me
+  private static int count = 0
+  private unit spinner
+  private int conf
+  private int abilcode1
+  private int abilcode2
+  private int abilcode3
+
+  construct(unit s)
+    this.spinner = s
+    this.conf = 1
+    /*BlzSetUnitAbilityCooldown
+    BlzGetUnitAbilityCooldown*/
+    abilcode1 = NGR_SPELL_ID
+    abilcode2 = FMB_SPELL_ID
+    abilcode3 = HOP_SPELL_ID
+    me[count]=this
+    count++
+
+  ondestroy
+    count--
+
+  private static function find(unit s) returns thistype
+    for i = 0 to count-1
+      if me[i].spinner == s
+        return me[i]
+    return null
+
+  private function spin() returns int
+    conf++
+    if conf > 3
+      conf = 1
+    var tempcode = abilcode1
+    var tempcd = BlzGetUnitAbilityCooldownRemaining(spinner, tempcode)
+
+    BlzSetAbilityPosX(abilcode1, 2)
+    BlzSetAbilityPosX(abilcode2, 0)
+    BlzSetAbilityPosX(abilcode3, 1)
+    var cd1 = BlzGetUnitAbilityCooldownRemaining(spinner, abilcode1)
+    var cd2 = BlzGetUnitAbilityCooldownRemaining(spinner, abilcode2)
+    var cd3 = BlzGetUnitAbilityCooldownRemaining(spinner, abilcode3)
+    /*if cd3 > 0
+      */
+
+    // conf 1 = 1 2 3
+    // conf 2 = 2 3 1
+    // conf 3 = 3 1 2
+    //if conf == 1 and cd3 > 0
+    //spinner.removeAbility(abilcode3)
+    //BlzUnitHideAbility(spinner, abilcode3, true)
+
+    /* print(I2S(abilcode1)+" "+ R2S(BlzGetUnitAbilityCooldownRemaining(spinner, abilcode1)))
+    BlzSetAbilityActivatedPosX(abilcode1, 2)
+    print(I2S(abilcode2)+" "+ R2S(BlzGetUnitAbilityCooldownRemaining(spinner, abilcode2)))
+    abilcode1 = abilcode2
+    BlzSetAbilityActivatedPosX(abilcode2, 0)
+    print(I2S(abilcode3)+" "+ R2S(BlzGetUnitAbilityCooldownRemaining(spinner, abilcode3)))
+    abilcode2 = abilcode3*/
+
+    BlzSetAbilityActivatedPosX(abilcode3, 1)
+    abilcode3 = tempcode
+    //Blz
+
+    return conf
+
+  static function getSpin(unit s) returns int
+    thistype S = find(s)
+    if S == null
+      S = new Spinner(s)
+    return S.spin()
+
+
+init
+  EventListener.onCast(STD_SPELL_ID) (caster) ->
+    int conf = Spinner.getSpin(caster)
+    print("Current configuration of "+GetUnitName(caster)+" is "+I2S(conf))

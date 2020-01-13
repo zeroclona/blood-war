@@ -1,0 +1,31 @@
+package ExampleHero
+import UnitIds
+import HeroIds
+import SpellIds
+import UnitObjEditing
+import ObjectIds
+import Icons
+import Units
+import AbilityIds
+
+@compiletime function genObj()
+  new HeroDefinition(HeroIds.example, UnitIds.jaina)
+    ..setName("exampleheroname")
+    ..setProperNames(commaList("propername1","propername2"))
+    ..setProperNamesUsed(2)
+    ..setHeroAbilities(commaList(AbilityIds.chainLightning1, AbilityIds.blizzard, AbilityIds.shadowHunterHealingWave, AbilityIds.massTeleport))
+    ..setNormalAbilities(commaList(AbilityIds.inventory))
+    ..setIconGameInterface(Icons.bTNFootman)
+    ..setIconScoreScreen("")
+    ..setModelFile(Units.ballista1)
+    ..setCollisionSize(0)
+    ..setHotkey("")
+    ..setManaInitialAmount(0)
+    ..setStartingAgility(0)
+    ..setStartingIntelligence(0)
+    ..setStartingStrength(0)
+    ..setHitPointsMaximumBase(300)
+    ..setAgilityPerLevel(0)
+    ..setStrengthPerLevel(0)
+    ..setIntelligencePerLevel(0)
+    ..hideHeroDeathMsg(false)

@@ -1,0 +1,54 @@
+package JoyceConsts
+import public Assets
+import ObjEditingNatives
+
+@configurable public let HERO_NAME = "Ke-ke-ke"
+@configurable public let HERO_PROPERNAME = "Joyce"
+
+//ABILITY Spin the drum
+@configurable public let STD_SPELL_ICON = Icons.bTNDispelMagic
+@configurable public let STD_SPELL_NAME = "Крутить барабан"
+@configurable public let STD_SPELL_TT_NORMAL = "Крутить барабан"
+@configurable public let STD_SPELL_TT_EXTENDED = "ААААААААААААААвтомобиль!"
+@configurable public let STD_SPELL_EFFECT_PATH = Units.infernalBirth
+@configurable public IntLevelClosure STD_SPELL_MC = lvl -> 100 + 10*(lvl-1)
+@configurable public RealLevelClosure STD_SPELL_CD = lvl -> 2.
+
+//ABILITY NINE GRAMM TO HEART
+@configurable public let NGR_SPELL_ICON = Icons.bTNFragmentationBombs
+@configurable public let NGR_SPELL_NAME = "9 граммов в сердце"
+@configurable public let NGR_SPELL_TT_NORMAL = "Cast Q"
+@configurable public let NGR_SPELL_TT_EXTENDED = "Пам-пам-пам."
+@configurable public IntLevelClosure NGR_SPELL_MC = lvl -> 0*lvl
+@configurable public RealLevelClosure NGR_SPELL_CD = lvl -> 4.
+
+
+//ABILITY FULL METAL BULLET
+@configurable public let FMB_SPELL_ICON = Icons.bTNPotionGreen
+@configurable public let FMB_SPELL_NAME = "Цельнометаллическая пуля"
+@configurable public let FMB_SPELL_TT_NORMAL = "Cast W"
+@configurable public let FMB_SPELL_TT_EXTENDED = "Камапуля."
+@configurable public IntLevelClosure FMB_SPELL_MC = lvl -> 0*lvl
+@configurable public RealLevelClosure FMB_SPELL_CD = lvl -> 6.
+
+//ABILITY HOLE PUNCHER
+@configurable public let HOP_SPELL_ICON = Icons.bTNPitLord
+@configurable public let HOP_SPELL_NAME = "Дырокол"
+@configurable public let HOP_SPELL_TT_NORMAL = "Cast E"
+@configurable public let HOP_SPELL_TT_EXTENDED = "Тыщя дыр."
+@configurable public IntLevelClosure HOP_SPELL_MC = lvl -> 0*lvl
+@configurable public RealLevelClosure HOP_SPELL_CD = lvl -> 8.
+
+@configurable public let BASE_DAMAGE = 50.
+@configurable public let BONUS_DAMAGE = 50.
+
+@configurable public let BONUS_EFFECT_PATH = Abilities.fireBallMissile
+@configurable public let SPELL_EFFECT_DURATION = .75
+@configurable public let SPELL_RADIUS = 256.
+
+
+@configurable public let BUFF_DURATION = 7.5
+@configurable public let BUFF_EFFECT_PATH = Abilities.incinerateBuff
+
+@configurable public let BUFF_NAME = "Conflagrated"
+@configurable public let BUFF_TT = "This unit has weakness to fire"

@@ -1,0 +1,24 @@
+package AvengingLighting
+
+import CobraConsts
+import SpellIds
+import Spell
+import ClosureForGroups
+import ClosureEvents
+
+public class AvengingLighting extends Spell
+  static let dmg = Cobra.MstyashayaMolniya.damage
+  static let enemycount = Cobra.MstyashayaMolniya.addenemycount
+  static let enemyradius = Cobra.MstyashayaMolniya.enemytakeradius
+
+  construct(unit u)
+    super(u, SpellIds.avenginglighting)
+    EventListener.onTargetCast(id, (caster, target) -> onSpellEffect(caster, target))
+
+  function onSpellEffect(unit caster, unit target)
+    print(caster.getName()+" casts an Avenging Lightning")
+    let lvl = caster.getAbilityLevel(id)
+    forNearestUnit(target.getPos(), enemyradius.run(lvl), Filter(function stdEnemyFilter)) (unit u) ->
+    //TUT ODIN UNIT NADO NE ODIN
+
+    //if caster.isEnemyOf(u) and

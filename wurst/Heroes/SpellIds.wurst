@@ -1,0 +1,20 @@
+package SpellIds
+import ObjectIdGenerator
+
+public class SpellIds
+
+  ////Joyce
+  //static let spell1 = compiletime(ABIL_ID_GEN.next())
+  //static let spell2 = compiletime(ABIL_ID_GEN.next())
+  //static let spell3 = compiletime(ABIL_ID_GEN.next())
+  //static let spell4 = compiletime(ABIL_ID_GEN.next())
+  //static let spell5 = compiletime(ABIL_ID_GEN.next())
+
+
+  ////ExampleHero
+  static let examplespell = compiletime(ABIL_ID_GEN.next())
+  static let newnamespell = compiletime(ABIL_ID_GEN.next())
+
+
+  ////Cobra
+  static let avenginglighting = compiletime(ABIL_ID_GEN.next())

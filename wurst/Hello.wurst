@@ -1,0 +1,184 @@
+package Hello
+///DEMO PACKAGE
+
+
+import ConflagrationObjects
+import JoyceHeroWithSpells
+import ClosureEvents
+import Quaternion
+import FileIO
+import Usage
+import PlayerData
+import AbilityIds
+import UnitIds
+import HeroIds
+import BloodWarOverall
+import DamageEvent
+
+interface CallbackFunc
+  function run()
+// effect eff
+// var quater = quat(1,1,1,-1)
+// var quatconf = 1
+unit lastSelect
+var destrcount = 0
+
+rect R
+bool boo
+fogmodifier a
+fogmodifier b
+File file
+
+// class A
+//   static var str = "Hi Mark!"
+//   public static class B
+//     static function outMark()
+//       print(str)
+
+// @test function testClasses()
+//   var a = new A
+//   var b = new a.B
+
+init
+  CreateUnit(Player(0), JOYCE_ID, 3000, -1000, 0)
+  ..setLevel(10, false)
+  ..addStr(10000)
+  print("Hello World")
+  Cheat("iseedeadpeople")
+  var g = CreateGroup()
+    ..enumUnitsOfPlayer(Player(0), null)
+  CreateUnit(Player(0), JOYCE_ID, 3000, -1000, 228.600)
+  ..setLevel(10, false)
+  CreateUnit(Player(2), JOYCE_ID, 0, 400, 228.600)
+  CreateUnit(Player(1), JOYCE_ID, 0, -400, 228.600)
+  ..addAbility(AbilityIds.acidBomb)
+  CreateUnit(Player(3), JOYCE_ID, 400, 0, 228.600)
+  ..addAbility(SPELL_ID)
+  CreateUnit(players[0], HeroIds.example, 0, 0, 0)
+  ..addInt(1000)
+  ..setLevel(10, false)
+  //CreateUnit(Player(4), JOYCE_ID, -400, 0, 228.600)
+
+  for u from g
+    UnitAddAbility(u, SPELL_ID)
+  /*for i = 1 to 20
+    CreateUnit(Player(1),'hpea',GetRandomReal(0, 200),GetRandomReal(0, 200),0)*/
+  EventListener.onCast(STD_SPELL_ID) (unit caster) ->
+    BlzEndUnitAbilityCooldown(caster, STD_SPELL_ID)
+
+
+
+/*
+  file = new File("out_test_1.pld")
+  rect r = Rect(GetWorldBounds().getLeftBot().x,GetWorldBounds().getLeftBot().y,GetWorldBounds().getRightTop().x,GetWorldBounds().getRightTop().y)
+  EnumDestructablesInRect(r, null, -> begin
+    var d = GetEnumDestructable()
+    if d.getTypeId() != 'YTlb'
+      var str = d.getName()+" and coords are "+d.getX().toString()+" "+d.getY().toString()
+      print(str)
+      file.write(players[0], str)
+      print(str)
+      destrcount++
+    d.remove()
+  end
+  )
+  file.close()*/
+
+//   let baseOffset = 100.
+//   eff = AddSpecialEffect(Abilities.dryadmissile, 0,0)//rexxarMissile
+//   ..setPos(vec3(baseOffset, baseOffset, baseOffset*2))
+//   ..setOrientation(quater)
+//   /*+q.getX().x
+// +q.getY().y
+// +q.getZ().z)*/
+
+
+  /*
+  R = Rect(-300, -300, 300, 300)
+  boo = true
+  a = CreateFogModifierRect(players[0], FOG_OF_WAR_VISIBLE, R, false, true)
+  b = CreateFogModifierRect(players[0], FOG_OF_WAR_VISIBLE, GetWorldBounds(), false, true)
+
+  FogModifierStart(a)
+  FogModifierStop(b)*/
+  // fogmodifier b = CreateFogModifierRect(players[0], FOG_OF_WAR_FOGGED, R, false, true)
+  // FogModifierStart(b)
+  // fogmodifier c = CreateFogModifierRect(players[0], FOG_OF_WAR_MASKED, R, false, true)
+  // FogModifierStart(c)
+  // fogmodifier d = CreateFogModifierRect(players[0], FOG_OF_WAR_VISIBLE, R, false, true)
+  // FogModifierStart(d)
+
+  CreateTrigger()..registerPlayerChatEvent(players[0], "", false)
+  ..addAction() ->
+    let str = GetEventPlayerChatString()
+    int i = 0
+    switch str.substring(0)
+      case "a"
+        print("a")
+        EnumUnitsSelected(GetTriggerPlayer(), null) ->
+          if lastSelect.isAlive()
+            print(lastSelect.getName()+" is alive!")
+          else
+            print(lastSelect.getName()+" doesn't alive!")
+          lastSelect = GetEnumUnit()
+      case "kill it"
+        lastSelect.kill()
+        print("i killed "+lastSelect.getName())
+      case "cam A"
+        if boo
+          FogModifierStart(a)
+          FogModifierStop(b)
+        else
+          FogModifierStart(b)
+          FogModifierStop(a)
+        boo = not boo
+      case "hero"
+        var out = "Herolist of player[0]: "
+        for hd in players[0].getData().herolist()
+          out += hd.actor.getName()+", "
+        print(out)
+      case "q"
+        for j = 0 to 10
+          print(players[j].getName())
+      default
+        print("?????")
+    // let str = GetEventPlayerChatString()
+    // print(SubString(str, 0, 1)+SubString(str, 1, str.length()).toReal().toString(1))
+    // if SubString(str, 0, 1) == "x"
+    //   quatconf = 1
+    //   quater.x = SubString(str, 1, str.length()).toReal()
+    // else if SubString(str, 0, 1) == "y"
+    //   quatconf = 2
+    //   quater.y = SubString(str, 1, str.length()).toReal()
+    // else if SubString(str, 0, 1) == "z"
+    //   quatconf = 3
+    //   quater.z = SubString(str, 1, str.length()).toReal()
+    // else if SubString(str, 0, 1) == "w"
+    //   quatconf = 4
+    //   quater.w = SubString(str, 1, str.length()).toReal()
+    // eff.setOrientation(quater)
+    //PanCameraTo(eff.getLocalX(), eff.getLocalY())
+
+
+//   CreateTimer().startPeriodic(0.01, -> begin
+//     switch quatconf
+//       case 1
+//         quater.x+=0.01
+//         if quater.x>1
+//           quater.x=-1
+//       case 2
+//         quater.y+=0.01
+//         if quater.y>1
+//           quater.y=-1
+//       case 3
+//         quater.z+=0.01
+//         if quater.z>2
+//           quater.z=-2
+//       case 4
+//         quater.w+=0.01
+//         if quater.w>1
+//           quater.w=-1
+//     print(quater.toString())
+//     eff.setOrientation(quater)
+//   end)
+  //EventListener.registerEventId()

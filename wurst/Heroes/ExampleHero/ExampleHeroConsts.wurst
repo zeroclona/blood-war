@@ -1,0 +1,13 @@
+package ExampleHeroConsts
+import Icons
+
+
+
+public class ExampleHero
+  @configurable static let name = "Example Hero"
+  @configurable static let propname1 = "Example Hero"
+  @configurable static let propname2 = "Example Hero"
+
+  static class MstyashayaMolniya
+    @configurable static let name = "Example Hero Spell"
+    static let icon = Icons.bTNAvatar

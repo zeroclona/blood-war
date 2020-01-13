@@ -1,0 +1,73 @@
+package KillingHeroEntity
+import HeroEntity
+import GameTimer
+import HashMap
+import ClosureEvents
+import TimerUtils
+import LinkedList
+import PlayerData
+import DamageEvent
+import RecentDamage
+import Statistics
+
+function calcHeroKillReward(HeroEntity victim) returns int
+
+  real reward = 100 + (victim.actor.getLevel() * 25) - (RecentDamage.attackersLevel(victim) * 15) + (currentTime/10) - (0/* deathcount*10 */)
+  print("victim level "+victim.actor.getLevel().toString()+" attackers level "+RecentDamage.attackersLevel(victim).toString())
+  switch RecentDamage.attackerPlayers(victim).size()
+    case 1
+      print("один")
+      reward *= (1+(.25))
+    case 2
+      print("вдвоем")
+    case 3
+      print("втроем")
+      reward *= (1+(-.15))
+    case 4
+      print("всей семьей")
+      reward *= (1+(-.30))
+    default
+      reward *= 1
+  print("post calculation reward "+reward.toString())
+  return (reward + (reward >= 0?.5:-.5)).toInt()
+
+
+public function onHeroDeath(HeroEntity he, unit killer)
+  if he.legitimus
+    let attackerPlayers = RecentDamage.attackerPlayers(he)
+    let reward = calcHeroKillReward(he)
+    for a in attackerPlayers
+      a.addGold(reward)
+    he.ownerData.subGold(reward)
+
+    let outstr = attackerPlayers.size() > 1 ? killer.getPlayerData().nameColored()+" убил "+he.ownerData.nameColored()+". Каждый нападающий получил "+(reward).toString()+" золота" : killer.getPlayerData().nameColored()+" убил "+he.ownerData.nameColored()+" и получил за это "+(reward).toString()+" золота"
+    printTimed(outstr, 10.)
+
+    he.revive(15.)
+
+    PersonalStats.addKill(killer.getPlayerData())
+    PersonalStats.addDeath(he.ownerData)
+
+    RecentDamage.map.get(he).remainTimeList.forEach() (HeroEntity key, real value) ->
+      print("Attacker "+key.actor.getName()+" i ego time "+value.toString())
+
+  else
+    onSpecificDeath(he, killer)
+
+
+function onSpecificDeath(HeroEntity he, unit killer)
+  print("Specific death of "+he.actor.getName()+" owned by "+he.actor.getOwner().getName())
+
+public function registerHeroDeaths()
+  EventListener.add(EVENT_PLAYER_UNIT_DEATH) ->
+    var tobreak = false
+    if IsUnitType(GetDyingUnit(), UNIT_TYPE_HERO)
+      for pd in PlayerData.list
+        for hero in pd.herolist()
+          if hero.actor == GetDyingUnit()
+            if hero.legitimus
+              onHeroDeath(hero, GetKillingUnit())
+              tobreak = true
+              break
+        if tobreak
+          break

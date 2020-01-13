@@ -1,0 +1,27 @@
+package IsHeroDamaged
+
+class DamageTaking
+  static let registered = new LinkedList<HeroEntity>
+  static let timerList = new IterableMap<HeroEntity, timer>
+  static let waitingTime = 10.
+
+  static function register(HeroEntity he)  // he.actor == victim
+    registered.add(he)
+
+    EventListener.add(he.actor, EVENT_PLAYER_UNIT_DAMAGED) ->
+
+      var t = timerList.get(he)
+
+      if t != null
+        timerList.remove(he)
+        t.release()
+
+      t = getTimer()
+      timerList.put(he, t)
+      t.setData(he castTo int)
+      t.start(waitingTime) ->
+        timerList.getAndRemove(GetExpiredTimer().getData() castTo HeroEntity).release()
+
+
+public function isHeroDamaged(HeroEntity he) returns bool
+  return DamageTaking.timerList.get(he) != null

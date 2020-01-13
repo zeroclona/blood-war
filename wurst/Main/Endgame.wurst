@@ -1,0 +1,9 @@
+package Endgame
+import IngameTables
+
+public function beginEndGame()
+  /////multiUpdTimer.pause() отключение таблиц
+  printTimed("Игра завершена!", 120.)
+  //////DISABLE GAME MECHANICS
+  //////Показ статы
+  //////Пауза всех юнитов (без исключения на этот раз)

@@ -1,0 +1,155 @@
+package Shop
+import ObjectIdGenerator
+import UnitObjEditing
+import StandartPickPos
+import Assets
+import StringUtils
+import ClosureEvents
+import TeamData
+import LinkedListModule
+import UnitIds
+import HeroIds
+import IngameTables
+
+enum primAttributes
+  Strength
+  Agility
+  Intelligence
+
+public let SHOP_ID = compiletime(UNIT_ID_GEN.next())
+
+constant let shop1pos = vec2(4288.0, - 2624.0)  //good
+constant let shop2pos = vec2(4288.0, - 3008.0)  //good
+constant let shop3pos = vec2(4288.0, - 3392.0)  //good
+constant let shop4pos = vec2(4288.0, - 4288.0)  //bad
+constant let shop5pos = vec2(4288.0, - 4672.0)  //bad
+constant let shop6pos = vec2(4288.0, - 5056.0)  //bad
+
+/*function string.toInt256() returns int
+  var list = this.toCharList()
+  return list.get(0).toInt()*256*256*256+list.get(1).toInt()*256*256+list.get(2).toInt()*256+list.get(3).toInt()*/
+
+class Shop
+  use LinkedListModule
+  unit entity
+  primAttributes attr
+  TeamData whichSide
+
+  construct(primAttributes att, vec2 pos,TeamData a)
+    entity = createUnit(DUMMY_PLAYER, SHOP_ID, pos, angle(3*bj_PI/2))
+    attr = att
+    whichSide = a
+    switch att
+      case Strength
+        entity.setColor(PLAYER_COLOR_RED)
+      case Agility
+        entity.setColor(PLAYER_COLOR_GREEN)
+      case Intelligence
+        entity.setColor(PLAYER_COLOR_BLUE)
+
+  function putHeroes(vararg int whichHeroes)
+    for id in whichHeroes
+      AddUnitToStock(entity, id, 1, 1)
+
+  static function getShop(unit u) returns thistype
+    for s in Shop
+      if s.entity == u
+        return s
+    return null
+
+
+  static function removeHero(unit shop, unit h)
+    RemoveUnitFromStock(shop, h.getTypeId())
+
+  function removeHero(unit h)
+    RemoveUnitFromStock(entity, h.getTypeId())
+
+
+function onHeroPick(HeroEntity he)
+
+function registerFuncs()
+  EventListener.add(EVENT_PLAYER_UNIT_SELL) ->
+    var selling = GetSellingUnit()
+    var sold = GetSoldUnit()
+    print(sold.getOwner().getName()+" выбрал "+sold.getName())
+
+    var p = sold.getPlayerData()
+    sold.setPos(StandartPickPos.get(p.team))
+
+    var hero = new HeroEntity(sold)
+    p.addHero(hero)
+    hero.isMain = true
+    p.mainhero = hero
+
+    Shop.removeHero(selling,sold)
+    onHeroPick(HeroEntity.list.get(sold))
+    GameInfoTable.addPlayer(p)
+
+
+    // print(GetSellingUnit().getOwner().getId())
+    // print(GetSoldUnit().getOwner().getId())
+
+
+function createShops()
+  new Shop(primAttributes.Strength, shop1pos, goodies)
+    ..putHeroes('Hblm',UnitIds.darkranger, UnitIds.alchemist,'Hvsh',HeroIds.cobra)
+  new Shop(primAttributes.Agility, shop2pos, goodies)
+    ..putHeroes('Hblm','Hmkg','Hvsh')
+  new Shop(primAttributes.Intelligence, shop3pos, goodies)
+    ..putHeroes('Hblm',UnitIds.darkranger,'Hvsh')
+  new Shop(primAttributes.Strength, shop4pos, baddies)
+    ..putHeroes('Hblm',UnitIds.alchemist,'Hvsh')
+  new Shop(primAttributes.Agility, shop5pos, baddies)
+    ..putHeroes('Hblm','Hmkg','Hvsh')
+  new Shop(primAttributes.Intelligence, shop6pos, baddies)
+    ..putHeroes('Hblm','Hmkg','Hvsh')
+
+public function initShop()
+  createShops()
+  registerFuncs()
+
+
+  players[0]..addGold(10000)..addLumber(10000) ///////WTF DELETE THIS PLEASE!
+
+
+
+
+
+
+@compiletime function genShop()
+  new BuildingDefinition(SHOP_ID, UnitIds.workshop)
+    ..setName("Shop")
+    ..setDescription("для buy героes")
+    ..setRequirements("")
+    ..setUnitsTrained("")
+    ..setResearchesAvailable("")
+    ..setRevivesDeadHeros(false)
+    ..setCategorizationSpecial(true)
+    ..setHitPointsMaximumBase(100000)
+    ..setIsaBuilding(true)
+    ..setModelFile(Buildings.tavern1)
+    ..setRace(Race.Other)
+    ..setNormalAbilities("Aneu, Asud, Avul")
+    ..setUpgradesUsed("")
+    ..setUnitClassification("")
+    ..setShadowTextureBuilding("")
+    ..setArtSpecial("")
+    //..
+
+
+/* set u=CreateUnit(p, 'harm', 4288.0, - 2624.0, 270.000)
+set u=CreateUnit(p, 'harm', 4288.0, - 3008.0, 270.000)
+set u=CreateUnit(p, 'harm', 4288.0, - 3392.0, 270.000)
+endfunction
+
+//===========================================================================
+function CreateBuildingsForPlayer2 takes nothing returns nothing
+local player p= Player(2)
+local unit u
+local integer unitID
+local trigger t
+local real life
+
+set u=CreateUnit(p, 'harm', 4288.0, - 5056.0, 270.000)
+set u=CreateUnit(p, 'harm', 4288.0, - 4288.0, 270.000)
+set u=CreateUnit(p, 'harm', 4288.0, - 4672.0, 270.000) */

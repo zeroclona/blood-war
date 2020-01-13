@@ -1,0 +1,138 @@
+package Statistics
+import HashMap
+import TeamData
+
+public class PersonalStats
+  static let list = new HashMap<PlayerData, thistype>
+  PlayerData person
+  int kills
+  int deaths
+  int earnedGold
+  int earnedExp
+  int damageToDemonDealt
+  int damageToHeroDealt
+  int killedTulen
+  int killedOwles
+
+  static function addKill(PlayerData pd)
+    list.get(pd).kills++
+
+  static function addDeath(PlayerData pd)
+    list.get(pd).deaths++
+
+  static function addEarnedGold(PlayerData pd, int amount)
+    list.get(pd).earnedGold += amount
+
+  static function addEarnedExp(PlayerData pd, int amount)
+    list.get(pd).earnedExp += amount
+
+  static function addDmgDealtToDemon(PlayerData pd, int amount)
+    list.get(pd).damageToDemonDealt += amount
+
+  static function addDmgDealtToHero(PlayerData pd, int amount)
+    list.get(pd).damageToHeroDealt += amount
+
+  static function addKilledTulen(PlayerData pd)
+    list.get(pd).killedTulen++
+
+  static function addKilledOwl(PlayerData pd)
+    list.get(pd).killedOwles++
+//////////////////
+  static function getKills(PlayerData pd) returns int
+    return list.get(pd).kills
+
+  static function getDeaths(PlayerData pd) returns int
+    return list.get(pd).deaths
+
+  static function getEarnedGold(PlayerData pd) returns int
+    return list.get(pd).earnedGold
+
+  static function getEarnedExp(PlayerData pd) returns int
+    return list.get(pd).earnedExp
+
+  static function getDmgDealtToDemon(PlayerData pd) returns int
+    return list.get(pd).damageToDemonDealt
+
+  static function getDmgDealtToHero(PlayerData pd) returns int
+    return list.get(pd).damageToHeroDealt
+
+  static function getKilledTulen(PlayerData pd) returns int
+    return list.get(pd).killedTulen
+
+  static function getKilledOwl(PlayerData pd) returns int
+    return list.get(pd).killedOwles
+
+  construct(PlayerData pd)
+    list.put(pd, this)
+    person = pd
+    kills = 0
+    deaths = 0
+    earnedGold = 0
+    earnedExp = 0
+    damageToDemonDealt = 0
+    damageToHeroDealt = 0
+    killedTulen = 0
+    killedOwles = 0
+
+public class TeamStats
+  static let list = new HashMap<TeamData, thistype>
+  TeamData team
+  int earnedGold
+  int earnedExp
+  int damageToDemonDealt
+  int damageToHeroDealt
+  real timeTakingMines
+  real timeTakingExtractor
+  int killedTotems
+  int killedBosses
+  int owlCount
+  real timeOwlExist
+
+  static function addEarnedGold(TeamData td, int amount)
+    list.get(td).earnedGold += amount
+
+  static function addEarnedExp(TeamData td, int amount)
+    list.get(td).earnedExp += amount
+
+  static function addDmgDealtToDemon(TeamData td, int amount)
+    list.get(td).damageToDemonDealt += amount
+
+  static function addDmgDealtToHero(TeamData td, int amount)
+    list.get(td).damageToHeroDealt += amount
+
+  static function addTimeTakingMine(TeamData td, real amount)
+    list.get(td).timeTakingMines += amount
+
+  static function addTimeTakingExtractor(TeamData td, real amount)
+    list.get(td).timeTakingExtractor += amount
+
+  static function addKilledTotem(TeamData td)
+    list.get(td).killedTotems++
+
+  static function addKilledBoss(TeamData td)
+    list.get(td).killedBosses++
+
+  static function addOwl(TeamData td)
+    list.get(td).owlCount++
+
+  static function addTimeOwlExist(TeamData td, real amount)
+    list.get(td).timeOwlExist += amount
+
+  construct(TeamData td)
+    team = td
+    earnedGold = 0
+    earnedExp = 0
+    damageToDemonDealt = 0
+    damageToHeroDealt = 0
+    timeTakingMines = 0
+    timeTakingExtractor = 0
+    killedTotems = 0
+    killedBosses = 0
+    owlCount = 0
+    timeOwlExist = 0
+
+public function initStatistics()
+  for p in PlayerData.list
+    new PersonalStats(p)
+
+public class EndGameTable

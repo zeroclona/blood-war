@@ -1,0 +1,57 @@
+package Influence
+import Demon
+import TeamData
+import initlater Endgame
+
+public let influenceToFinish = 225
+
+public class Influence
+  static private real goodies = 0.
+  static private real baddies = 0.
+
+  static function getGood() returns real
+    return goodies
+
+  static function getBad() returns real
+    return baddies
+
+  static function getDiff() returns real //возвращает разницу во влиянии (полож если, орден>культа, иначе отриц)
+    return goodies - baddies
+
+  static function addGood(real amount)
+    goodies += amount
+
+  static function addBad(real amount)
+    baddies += amount
+
+  static function setGood(real amount)
+    goodies = amount
+
+  static function setBad(real amount)
+    baddies = amount
+
+  static function endgameCheck()
+    if goodies >= influenceToFinish or baddies >= influenceToFinish
+      beginEndGame()
+
+  static function initInfluence()
+    goodies = 0.
+    baddies = 0.
+
+public function unit.addInfluence(real amount)
+  if this.getPlayerData().team == baddies
+    Influence.addBad(amount)
+  else
+    if this.getPlayerData().team == goodies
+      Influence.addGood(amount)
+
+
+
+/*leader = CreateLeaderboard()
+    PlayerSetLeaderboard(players[0], leader)
+    LeaderboardSetStyle(leader, false, true, false, false)
+    LeaderboardAddItem(leader, multitext_row1_1+I2S(R2I(goodies))+multitext_row1_2+I2S(R2I(baddies))+multitext_row1_3, 0, players[0])
+    LeaderboardAddItem(leader, multitext_row2_1+I2S(0)+":"+(0<10?"0"+I2S(0):I2S(0))+"|r",0,players[1])
+    LeaderboardSetSizeByItemCount(leader, 1)
+    LeaderboardDisplay(leader, true)
+    */

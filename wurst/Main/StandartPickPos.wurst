@@ -1,0 +1,24 @@
+package StandartPickPos
+import TeamData
+import ErrorHandling
+
+@configurable
+let badPickPos = vec2(-300., 0.)
+@configurable
+let goodPickPos = vec2(300., 0.)
+
+public class StandartPickPos
+
+
+  static function get(TeamData t) returns vec2
+    if t == baddies
+      return badPickPos
+    else if t == goodies
+
+      return goodPickPos
+    else if t == neutral
+      error("Something's trying to get standart pick position for neutrals TeamData")
+      return vec2(0,0)
+    else
+      error("Something's trying to get standart pick position for unregistered TeamData")
+      return vec2(0,0)

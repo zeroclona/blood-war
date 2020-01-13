@@ -1,0 +1,60 @@
+package JustARocket
+import Projectile
+import rocket_ability
+import JoyceHeroWithSpells
+
+abstract class OnGroundEvent
+  abstract function onGround(Rocket projectile)
+
+class Rocket extends Projectile
+  real speed
+  real zAngle = bj_PI/3
+  OnGroundEvent og
+  int bounceCount = 0
+  construct(unit caster, vec2 targetPos)
+    super(caster.getPos3Real(), 100, caster.getOwner(), angle(0), Abilities.dryadmissile)
+    let startPos = caster.getPos()
+    gravity = defaultGravity
+    var dist = startPos.distanceTo(targetPos)
+    speed = SquareRoot(dist * -gravity / Sin(2*zAngle))
+
+    setXYAngle(startPos.angleTo(targetPos))
+    this..setSpeed(speed*Cos(zAngle))..setRanged(dist*3)
+    vel.z = speed * Sin(zAngle)
+    setZAngle(angle(zAngle))
+
+    og = (proj) -> begin
+      print("hoho"+bounceCount.toString())
+      flashEffect(Abilities.thunderclapCaster, pos)
+    end
+
+  override function update()
+    super.update()
+    if pos.z - pos.getTerrainZ() < -gravity
+      speed*=0.9
+      setSpeed(speed*Cos(zAngle))
+      vel.z= speed * Sin(zAngle)
+      setZAngle(angle(zAngle))
+      if og != null
+        og.onGround(this)
+      bounceCount++
+      if bounceCount >= 3
+        destroy this
+
+  ondestroy
+    if og != null
+      destroy og
+
+Fx memes
+init
+  createUnit(players[0], JOYCE_ID, vec2(0,0), angle(0)).addAbility(rocket_ID)
+  EventListener.onPointCast(rocket_ID) (caster,target)->
+    print(caster.getName()+" тупо кастанул "+GetObjectName(rocket_ID))
+    new Rocket(caster,target)
+    memes = new Fx(target, angle(0),Abilities.dryadmissile)
+      ..setZ(150.)
+      ..setZAngle(angle(-10))
+    CreateTimer().startPeriodic(0.01) ->
+      memes.setZAngle(memes.getZAngle()+angle(bj_PI/180))
+
+  //AddUnitToStock(whichUnit, unitId, currentStock, stockMax)

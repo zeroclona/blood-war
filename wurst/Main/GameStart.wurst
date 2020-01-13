@@ -1,0 +1,88 @@
+package GameStart
+import TeamData
+import Sounds
+import Influence
+import TimerUtils
+import ClosureTimers
+import Utility
+
+constant goodPickCamerapos = vec2(4285., -3050.)
+constant badPickCamerapos = vec2(4285., -4700.)
+constant prepairingTime = 30.
+constant hiMsg = color(10, 216, 10).toColorString()+"Добро пожаловать в Blood War v1.4 alpha!|r"+color(169, 84, 52).toColorString()+"\nБитва начнётся через 90 секунд."
+constant hintMsg_1 = "Первый раз в игре? Обязательно ознакомьтесь с информацией о карте (F9) и получите ценные советы!"
+constant betaMsg = color(155, 0, 0).toColorString()+"Карта находится на этапе бета-тестирования.\nСообщить о баге или найти товарищей для игры можно в группе ВКонтакте или в комнате в дискорде. Ссылки в Инфо (F9)."
+constant hintMsg_2 = "Вам доступен выбор улучшений для всей команды в Ставке командования.\nБудет выбрано улучшение с наибольшим числом голосов."
+
+string playlist
+function helloMsg()
+  baddies.printTimed(hiMsg, 15.)
+  goodies.printTimed(hiMsg, 15.)
+
+
+function makePlayList(vararg string paths) returns string
+  string out = ""
+  for str in paths
+    out+=str+";"
+    //print(str)
+  out = out.rtrim(";")
+  //print(out)
+  return out
+
+function playGameMusic()
+  playlist = makePlayList(Sounds.human1, Sounds.arthasTheme, Sounds.illidansTheme, Sounds.lichKingTheme, Sounds.nagaTheme, Sounds.darkVictory, Sounds.pursuitTheme, Sounds.nightElfDefeat, Sounds.orcDefeat, Sounds.orc1, Sounds.orc2, Sounds.orc3, Sounds.mainscreen, Sounds.bloodElfTheme)
+  SetMapMusic(playlist, true, 0)
+
+function cameraSetToHeroPick()
+  for pd in goodies.playerList
+    //pd.p.panCameraToTimed(goodPickCamerapos, 0.)
+    pd.p.setCameraPosition(goodPickCamerapos)
+  for pd in baddies.playerList
+    pd.p.panCameraToTimed(badPickCamerapos, 0.)
+
+function onGameStart()
+  Influence.initInfluence()
+  //playGameMusic()
+
+
+
+public function gameStartInit()
+  //prestart preset
+  helloMsg()
+  doAfter(3.) ->
+    hint(hintMsg_1, false, 25.)
+
+
+  doAfter(20.) ->
+    PlaySound(Sounds.creepAggroWhat1)
+    printTimed(betaMsg, 20.)
+    //ClearMapMusic()
+
+  doAfter(30.)  ->
+    hint(hintMsg_2, 25.)
+
+  //SetMusicPlayPosition
+  //SetThematicMusicPlayPosition
+  cameraSetToHeroPick()
+
+  getTimer().start(prepairingTime) ->
+    onGameStart()
+
+
+  //Приветственное сообщение
+  //пик героев (kamera na ostrova)
+  //через 1,5 мин начало игры
+  //Комрадшип (звук)
+  //Allow commands
+
+init
+//PlaySound(Sounds.comradeship)
+  //StopMusic(true)
+  playGameMusic()
+  // SetMapMusic(Sounds.humanX1, true, 0)
+  // PlayMusic(Sounds.newTournament+";"+Sounds.humanX1)
+  //StopMusic(true)
+  //ResumeMusic()
+  //SetMapMusic(Sounds.comradeship, true, 0)
+@test function testPlayLists()
+  makePlayList("abc","def","ghi","jkl","mno")

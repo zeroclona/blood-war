@@ -1,0 +1,229 @@
+package IngameTables
+import Statistics
+import TimerUtils
+import LinkedList
+import TeamData
+import GameTimer
+import Influence
+import BloodWarOverall
+import Demon
+
+constant goodteamName = "Орден"
+constant badteamName = "Культ"
+constant strKills = "Убийств"
+constant strDeaths = "Смертей"
+constant strState = "Состояние"
+constant strPreGame = "До начала игры: "
+
+public class GameInfoTable
+  private static var rows = 0
+  private static var cols = 0
+  static let playerList = new LinkedList<PlayerData>
+  private static multiboard multi
+
+  static function createTable()
+    rows = 2
+    cols = 4
+    multi = CreateMultiboard()
+    //..display(true)
+    ..minimize()
+    ..setItemsStyle(true, false)
+    ..setColumnCount(cols)
+    ..setRowCount(rows)
+    ..setItemsWidth(0.1)
+    ..setItemValue(0, 0, goodteamName)
+    ..setItemValueColor(0, 0, goodColor.red, goodColor.green, goodColor.blue, 255)
+    ..setItemValue(1, 0, badteamName)
+    ..setItemValueColor(1, 0, badColor.red, badColor.green, badColor.blue, 255)
+    ..setItemValue(0, 1, strKills)
+    ..setItemValue(0, 2, strDeaths)
+    ..setItemValue(0, 3, strState)
+    //..display(true)
+
+
+  static function addPlayer(PlayerData pd)
+    playerList.add(pd)
+    playerList.sortWith( (PlayerData o1, PlayerData o2) -> o1.p.getId()-o2.p.getId())
+    rows++
+    multi.setRowCount(rows)
+    var kultrow = 1
+    for p in playerList
+      kultrow++
+      if p.team == baddies
+        break
+
+    multi
+      ..setItemValue(kultrow, 0, badteamName)
+      ..setItemValueColor(kultrow, 0, badColor.red, badColor.green, badColor.blue, 255)
+      ..setItemValue(kultrow, 1, "")
+      ..setItemValue(kultrow, 2, "")
+      ..setItemValue(kultrow, 3, "")
+    if not gameStarted
+      update()
+    //multi.display(true)
+
+  private static function getTimeString(real time) returns string
+    int sec = R2I(time+.1)
+    int min = sec div 60
+    sec = sec mod 60
+    return I2S(min) + ":" + ( sec<10 ? "0"+I2S(sec) : I2S(sec) )
+
+  private static function updateTitle()
+    string titlestr = "Время игры: "
+    if gameStarted
+      for int i = 0 to bj_MAX_PLAYERS
+        if GetLocalPlayer() == players[i]
+          if multi.isMinimized()
+            //XX:XX [YY] [YY] [YY] [YY] [YY] [YY]
+            multi.setTitle(getTimeString(currentTime))   ///добавить таймеры воскрешения
+          else
+            //Время игры: XX:XX
+            multi.setTitle(titlestr+getTimeString(currentTime))
+    else
+      for int i = 0 to bj_MAX_PLAYERS
+        if GetLocalPlayer() == players[i]
+          if multi.isMinimized()
+            //XX:XX [YY] [YY] [YY] [YY] [YY] [YY]
+            multi.setTitle("До начала: "+getTimeString(beforeStartTime))   ///добавить таймеры воскрешения
+          else
+            //Время игры: XX:XX
+            multi.setTitle("До начала: "+getTimeString(beforeStartTime))
+
+
+  static function update()
+    updateTitle()
+    updateContainer()
+
+  private static function updateContainer()
+    int currow
+    PlayerData pd
+    for i = 0 to playerList.size()
+      pd = playerList.get(i)
+      if pd != null
+        if pd.team == baddies
+          currow = i+1+1
+        else
+          currow = i+1
+
+        multi.setItemValue(currow, 0, pd.name())
+        var c = PLAYER_COLORS[pd.p.getId()] ///////////////////цвет игрока
+        multi.setItemValueColor(currow, 0, c.red, c.green, c.blue, 255)
+        multi.setItemValue(currow, 1, PersonalStats.getKills(pd))
+        multi.setItemValue(currow, 2, PersonalStats.getDeaths(pd))
+        if pd.mainhero.actor.isAlive()
+          multi.setItemValue(currow, 3, "Жив")
+          multi.setItemValueColor(currow, 3, 0, 200, 0, 255)
+        else
+          multi.setItemValue(currow, 3, (pd.mainhero.respRemainingTime()+.1).toInt())
+          multi.setItemValueColor(currow, 3, 200, 0, 0, 255)
+    //multi.display(true)
+
+constant COLOR_RED = colorA(255,0,0,255)
+constant multitext_row1_1 = goodColor.toColorString()+"Орден: "
+constant multitext_row1_2 = "/"+influenceToFinish.toString()+"|r | "+ badColor.toColorString()+"Культ: "
+constant multitext_row1_3 = "/"+influenceToFinish.toString()+"|r"
+constant multitext_row2_1 = COLOR_WHITE.toColorString()+"Демон".toDemonColorString() + " через: "
+constant multitext_row2_2 = COLOR_WHITE.toColorString()+"Демон".toDemonColorString() + " прибыл! |r"
+
+public class InfluTable
+
+  //Орден: Х/225 | Культ: Х/225
+  //Демон через: Х:ХХ
+
+  static multiboard multi
+
+  private static function updateInfluence()
+    multi.setItemValue(0, 0, multitext_row1_1+I2S(R2I(Influence.getBad()))+multitext_row1_2+I2S(R2I(Influence.getBad()))+multitext_row1_3)
+
+  private static function updateDemonTime()
+    real time = Demon.spawnTimer.getRemaining()
+    int sec = R2I(time+.1)
+    int min = sec div 60
+    sec = sec mod 60
+    multi.setItemValue(1, 0, time > 0. ? (multitext_row2_1 + (time < 30. ? COLOR_RED.toColorString():"")+ (I2S(min)+":"+(sec<10?"0"+I2S(sec):I2S(sec)))+"|r" ) : multitext_row2_2)
+
+  private static function updateTitle()
+    for int i = 0 to bj_MAX_PLAYERS
+      if GetLocalPlayer() == players[i]
+        if multi.isMinimized()
+          multi.setTitle(goodColor.toColorString()+I2S(R2I(Influence.getGood()))+"/225|r   "+badColor.toColorString()+I2S(R2I(Influence.getBad()))+"/225|r")
+        else
+          multi.setTitle("Влияние")
+
+
+  static function update()
+    updateTitle()
+    updateInfluence()
+    updateDemonTime()
+    Influence.endgameCheck()
+
+  static function createTable()
+    multi = CreateMultiboard()
+    ..setRowCount(2)
+    ..setColumnCount(1)
+    ..setItemsStyle(true, false)
+    ..setItemsWidth(0.15)
+    //..display(true)
+    ..maximize()
+
+
+public class UpdTables
+  static framehandle influ
+  static framehandle influContainer
+  static framehandle gInfo
+  static framehandle gInfoContainer
+  static timer updTimer
+
+  static function updatePositions()
+    BlzFrameClearAllPoints(gInfo)
+    if BlzFrameIsVisible(influContainer) //influ is open?
+      //yes, pos gInfo below the influContainer.
+      gInfo.setPoint(FRAMEPOINT_TOPRIGHT, influContainer, FRAMEPOINT_BOTTOMRIGHT,0,0)
+    else
+      //no, pos gInfo below influ.
+      gInfo.setPoint(FRAMEPOINT_TOPRIGHT, influ, FRAMEPOINT_BOTTOMRIGHT,0,0)
+
+
+  static function update()
+    InfluTable.update()
+    GameInfoTable.update()
+    updatePositions()
+
+  static function initialize()
+    InfluTable.createTable()
+    influ = getFrame("Multiboard")
+    print(influ.getName())
+    influContainer = getFrame("MultiboardListContainer")
+    GameInfoTable.createTable()
+    gInfo = getFrame("Multiboard")
+    gInfoContainer = getFrame("MultiboardListContainer")
+
+
+    gInfo.clearAllPoints()
+    gInfo.setPoint(FRAMEPOINT_TOPRIGHT, influContainer, FRAMEPOINT_BOTTOMRIGHT,0,0)
+    influ.clearAllPoints()
+    influ.setAbsPoint(FRAMEPOINT_TOPRIGHT,0.80,0.55)
+
+    influ.setVisible(true)
+    gInfo.setVisible(true)
+    updTimer = getTimer()
+    updTimer.startPeriodic(0.2, function update)
+
+
+
+@test function func()
+  for i = 10 downto 0
+    print(i)
+  let a = new PlayerData()
+  a.p = players[0]
+  let b = new PlayerData()
+  b.p = players[1]
+  let c = new PlayerData()
+  c.p = players[4]
+  GameInfoTable.playerList.add(a,b,c)
+  print(GameInfoTable.playerList.indexOf(c))
+  print(GameInfoTable.playerList.indexOf(b))
+  print(GameInfoTable.playerList.indexOf(a))
+@test function func2()
+  for i = 0 to 10
+    print(i)

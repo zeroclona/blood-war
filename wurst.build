@@ -1,0 +1,64 @@
+---
+projectName: Blood War wurst build 2
+dependencies:
+- https://github.com/wurstscript/wurstStdlib2
+- https://github.com/Frotty/Frentity
+buildMapData:
+  name: Blood War unknown ver
+  fileName: Blood_War
+  author: Zero&Tema&some1
+  scenarioData:
+    description: WurstScript powered!
+    suggestedPlayers: DefaultSuggestedPlayers
+    loadingScreen:
+      subTitle: DefaultSubtitle
+  optionsFlags:
+    maskedAreasPartiallyVisible: true
+    showWavesOnCliffShores: true
+    showWavesOnRollingShores: true
+  players:
+  - id: 0
+    name: Player 1
+    race: HUMAN
+    controller: USER
+  - id: 1
+    name: Player 2
+    race: HUMAN
+    controller: USER
+  - id: 2
+    name: qqshka
+    race: HUMAN
+    controller: USER
+  - id: 3
+    name: Player 4
+    race: HUMAN
+    controller: USER
+  - id: 4
+    name: Player 5
+    race: HUMAN
+    controller: USER
+  - id: 5
+    name: Player 6
+    race: HUMAN
+    controller: USER
+  - id: 6
+    name: Player 7
+    race: HUMAN
+    controller: USER
+  - id: 7
+    name: Player 8
+    race: HUMAN
+    controller: USER
+  forces:
+  - name: Орден
+    playerIds:
+    - 0
+    - 1
+    - 2
+    - 3
+  - name: Культ
+    playerIds:
+    - 4
+    - 5
+    - 6
+    - 7

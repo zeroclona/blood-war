@@ -1,0 +1,14 @@
+package BloodWarOverall
+
+public let goodColor = "peach".toColor()
+public let badColor = "violet".toColor()
+public let playerCount = 8
+
+public constant DAMAGE_EVENT_PRIO_START       = 0 // Abort damage at this priority
+/** Spell damage*/
+public constant DAMAGE_EVENT_PRIO_SPDMOD      = 1 // Apply absolute changes by addition/subtraction spell damage
+public constant DAMAGE_EVENT_PRIO_MAGICARMOR  = 2 // Apply magic armor reduction
+public constant DAMAGE_EVENT_PRIO_RELATIVE    = 3 // Apply relative changes (multiplication and division)
+public constant DAMAGE_EVENT_PRIO_ABSOLUTE    = 4 // Apply absolute changes (addition and subtraction)
+public constant DAMAGE_EVENT_PRIO_SHIELD      = 5 // Apply reduction from "shield" effects
+public constant DAMAGE_EVENT_PRIO_FINAL       = 6 // Final damage (won't be changed at this stage)

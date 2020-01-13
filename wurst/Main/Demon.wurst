@@ -1,0 +1,228 @@
+package Demon
+import FxEntity
+import initlater Influence
+import ObjectIdGenerator
+import UnitObjEditing
+import UnitIds
+import Units
+import Textures
+import Icons
+import ClosureEvents
+import ClosureTimers
+import DemonVisionBlocker
+import Abilities
+import TeamData
+import Utility
+import Sounds
+
+
+let spawn_UP   = vec2(0, 3328)
+let spawn_DOWN = vec2(0, -3200)
+let spawn_GOOD = vec2(-1792, 2176)
+let spawn_BAD  = vec2(1792, 2176)
+
+let demon_Player = players[12]  //13й
+let DEMON_ID   = compiletime(UNIT_ID_GEN.next())
+
+let alertTime = 30.            // Время за которое предупреждают о появлении демона (если оно больше этого времени, очевидно)
+let vampFactor = 0.5           // Часть урона, которая вампирится при нанесении урона демону
+let respawnTime = 270.
+let initialSpawnTime = 40.  ///4SCIENCE ne 180
+let initialDemonGoldReward = 800
+let incDemonGoldReward = 200
+let initialDemonHP = 2000
+let incDemonHP = 1000
+
+
+public function string.toDemonColorString() returns string
+  return "|cff830101"+this+"|r"
+
+class onDamageHint
+  var pllist = new LinkedList<player>
+
+  function call(player p)
+    if not pllist.contains(p)
+      pllist.add(p)
+      hint(p, "При нанесении урона "+"Демону".toDemonColorString()+" вы востанавливаете здоровье в размере " + I2S(R2I(vampFactor*100+.1))+"% от нанесенного урона.")
+      if pllist.size() >= 7
+        destroy pllist
+        destroy this
+
+
+
+
+
+public class Demon
+  static DemonEntity self
+  static vec2 pos
+  static timer spawnTimer
+  private static destructable array[88] visionblockers
+  private static var goodDmg = 0.
+  private static var badDmg = 0.
+  static var demonCount = 0
+  static blockpos side
+  static onDamageHint odh = new onDamageHint()
+
+
+  static function getSpawnPos()
+    if Influence.getDiff().abs() > 100.
+      if Influence.getDiff() > 0.
+        pos = spawn_BAD
+        side = right
+      else
+        pos = spawn_GOOD
+        side = left
+    else
+      switch GetRandomInt(0, 1)
+        case 0
+          pos = spawn_DOWN
+          side = bot
+        case 1
+          pos = spawn_UP
+          side = top
+        default
+          error("Can't take demon spawn point!")
+
+  static function ping()
+    PingMinimapEx(pos.x, pos.y, 3.5, 255, 0, 0, false)       //is here desync?
+
+  static function alert()
+    getSpawnPos()
+    PlaySound(Sounds.questNew)
+    printTimed("Демон".toDemonColorString()+" появится через "+I2S(R2I(spawnTimer.getRemaining()+.5))+" секунд", 6.)
+    ping()
+
+  static function destroyBlockers()
+    // for int i = 0 to 87
+    //   visionblockers[i].remove()
+
+  static function createBlockers()
+    // for int i = 0 to 87
+    //   visionblockers[i] = CreateDestructable('YTlb', VisBlockCoords.leftpos[i].x, VisBlockCoords.leftpos[i].y, 0, 1, 0)
+    //   AddSpecialEffect(Abilities.talkToMe, VisBlockCoords.leftpos[i].x, VisBlockCoords.leftpos[i].y)
+
+  static function onDemonDamage()
+    let attacker = EventData.getEventDamageSource()
+    let victim = EventData.getDamageTarget()
+    let dmg = EventData.getEventDamage()
+    if dmg > 0.
+      odh.call(attacker.getOwner())
+      if attacker.getPlayerData().team == baddies
+        badDmg+=dmg
+      else
+        if attacker.getPlayerData().team == goodies
+          goodDmg+=dmg
+      attacker.setHP(attacker.getHP()+dmg*vampFactor)
+      var eff = attacker.addEffect(Abilities.healTarget, "origin")
+      attacker.addInfluence(dmg*3/victim.getMaxHP()*100)
+      doAfter(0.35) () ->
+        eff.destr()
+
+
+  static function onDemonDeath()
+    player p
+    let goodPerc = goodDmg/(goodDmg+badDmg)
+    let badPerc = badDmg/(goodDmg+badDmg)
+    let moneyPool = (initialDemonGoldReward+incDemonGoldReward*demonCount)
+    var money = goodPerc*moneyPool
+    for int i = 0 to 3
+      p = players[i]
+      p.getData().addGold(money.toInt())
+      printTimedToPlayer(goodPerc > 0. ? "Ваша команда нанесла "+"Демону ".toDemonColorString()+(goodPerc*100+.1).toInt().toString()+"% урона, получив за это "+COLOR_GOLD.toColorString()+(money+.1).toInt().toString()+"|r золота." : "Демон".toDemonColorString()+" изгнан", 10., p)
+    money = badPerc*moneyPool
+    for int i = 4 to 7
+      p = players[i]
+      p.getData().addGold(money.toInt())
+      printTimedToPlayer(goodPerc > 0. ? "Ваша команда нанесла "+"Демону ".toDemonColorString()+(badPerc*100+.1).toInt().toString()+"% урона, получив за это "+COLOR_GOLD.toColorString()+(money+.1).toInt().toString()+"|r золота." : "Демон".toDemonColorString()+" изгнан", 10., p)
+    demonCount++
+    destroyBlockers()
+    spawn(respawnTime)
+
+  static function spawn(real delay)
+    if delay > alertTime
+      doAfter(delay-alertTime) ->
+        alert()
+      doAfter(delay-alertTime+10) ->
+        ping()
+      doAfter(delay-alertTime+20) ->
+        ping()
+    else
+      alert()
+    spawnTimer = CreateTimer()
+    spawnTimer.start(delay) ->
+      printTimed("Демон".toDemonColorString()+" явился, изгоните его скорее!", 10.)
+      ping()
+      createBlockers()
+      self = new DemonEntity(createUnit(demon_Player, DEMON_ID, pos, GetRandomReal(0, 3.14).asAngleRadians()))
+      let hp = initialDemonHP + incDemonHP*demonCount
+      self.actor.setMaxHP(hp)
+      self.actor.setHP(hp.toReal())
+      EventListener.add(self.actor, EVENT_PLAYER_UNIT_DAMAGED) ->
+        onDemonDamage()
+      EventListener.add(self.actor, EVENT_PLAYER_UNIT_DEATH) ->
+        onDemonDeath()
+      spawnTimer.pause()
+      spawnTimer.destr()
+
+
+
+public function initDemon()
+
+  Demon.spawn(initialSpawnTime)
+
+
+
+class DemonEntity extends UnitEntity
+
+  construct(unit u)
+    super(u)
+
+@compiletime function genDemon()
+  new UnitDefinition(DEMON_ID, UnitIds.grunt)
+  ..setName("Демон")
+  ..setDescription("Демон и все тут")
+  ..setModelFile(Units.heroFlameLord)
+  ..setIconScoreScreen(Textures.scorescreen_hero_avatarofflame)
+  ..setIconGameInterface(Icons.bTNHeroAvatarOfFlame)
+  //bTNHeroAvatarOfFlame
+  ..setRace(Race.Other)
+  ..setRequirements("")
+  ..setNormalAbilities("")
+  ..setUpgradesUsed("")
+  ..setUnitClassification("")
+  ..setShadowTextureBuilding("")
+  ..setArtSpecial("")
+  ..setHideMinimapDisplay(true) /////???????????
+  ..setMovementType(MovementType.None)
+  ..setTurnRate(3.)
+  ..setSpeedBase(0)
+  ..setSightRadiusNight(2000)
+  ..setSightRadiusDay(2000)
+  ..setScalingValue(1.5)
+  ..setScaleProjectiles(true)
+  ..setPriority(5)            //?????
+  ..setManaMaximum(1000)
+  ..setManaInitialAmount(1000)
+  ..setManaRegeneration(100)
+  ..setHitPointsMaximumBase(2000)
+  ..setHitPointsRegenerationRate(0)
+  ..setFoodCost(0)
+  ..setArmorType(ArmorType.Normal)
+  ..setDefenseBase(0)
+  ..setAttacksEnabled(AttacksEnabled.None.toObjectInt())
+  ..setLevel(99)
+
+    //..setSelectionScale(1)
+@test
+function testrandom()
+  print(0==GetRandomInt(0, 1))
+  print(0==GetRandomInt(0, 1))
+  print(0==GetRandomInt(0, 1))
+  print(0==GetRandomInt(0, 1))
+  print(0==GetRandomInt(0, 1))
+// тупа тупак (юнит)
+// когда ему сносят 1% хп - -1 очко
+// антил 225 очков
+// появляется через N минут и появляется раз в M минут после смерти возле отстающей команды
+// каждое нанесение урона по нему - вампирическое (30%)
+// абилки действуют уникально

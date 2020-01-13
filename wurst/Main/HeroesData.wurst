@@ -1,0 +1,36 @@
+package HeroesData
+
+import HashMap
+import JoyceHeroWithSpells
+import LinkedList
+
+public class HeroIds
+  private static var list = new LinkedList<int>
+  private static var iconMap = new HashMap<int, string>
+
+  static function add(int id)
+    list.add(id)
+
+  static function add(int id, string path)
+    list.add(id)
+    iconMap.put(id, path)
+
+  static function addIcon(int unitid, string path)
+    iconMap.put(unitid, path)
+
+  static function get(int listid) returns int
+    return list.get(listid)
+
+  static function icon(int unitid) returns string
+    return iconMap.get(unitid)
+
+  static function list() returns LinkedList<int>
+    return list 
+
+  static function iconMap() returns HashMap<int, string>
+    return iconMap
+
+public class HeroIconPaths
+  static constant joyce = Icons.bTNGarithos
+  static constant wodomut = Icons.bTNGnollArcher
+  static constant sikroof = Icons.bTNGuldan

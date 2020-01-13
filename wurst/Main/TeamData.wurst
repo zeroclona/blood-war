@@ -1,0 +1,45 @@
+package TeamData
+
+import public initlater PlayerData
+import public LinkedList
+
+public constant baddies = new TeamData()
+public constant goodies = new TeamData()
+public constant neutral = new TeamData()
+//(-3880 3750) 3930(ybound) -4300(xbound)
+constant goodRespPointCenter = vec2(-3880., 3750.)
+constant badRespPointCenter =  vec2(3880., 3750.)
+
+public class TeamData
+  real incomeTeam
+  var playerList = new LinkedList<PlayerData>
+
+  function respPoint() returns vec2
+    real respX = 0.
+    real respY = 0.
+    if this == baddies
+      respX = GetRandomReal(badRespPointCenter.x-420., badRespPointCenter.x+420.)
+      respY = GetRandomReal(badRespPointCenter.y-180., badRespPointCenter.y+180.)
+    if this == goodies
+      respX = GetRandomReal(goodRespPointCenter.x-420., goodRespPointCenter.x+420.)
+      respY = GetRandomReal(goodRespPointCenter.y-180., goodRespPointCenter.y+180.)
+    return vec2(respX, respY)
+
+  function income() returns real
+    return incomeTeam
+
+  function add(vararg PlayerData pd)
+    for p in pd
+      playerList.add(p)
+
+  function addGold(int val)
+    //stats++
+    for p in playerList
+      p.addGold(val)
+
+
+public function TeamData.printTimed(string msg, real duration)
+  for pd in this.playerList
+    printTimedToPlayer(msg, duration, pd.p)
+
+public function initTeams()

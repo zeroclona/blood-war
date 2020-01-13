@@ -1,0 +1,24 @@
+package GameTimer
+import NoWurst
+import Basics
+import Timer
+timer gameTimer
+
+public real currentTime = 0.
+public real beforeStartTime = 90.
+public bool gameStarted = false
+
+public function getElapsedGameTime() returns real
+  return gameTimer.getElapsed()
+
+init
+  gameTimer = CreateTimer()
+  gameTimer.start(100000, null)
+  CreateTimer().startPeriodic(ANIMATION_PERIOD) ->
+    beforeStartTime -= ANIMATION_PERIOD
+    if beforeStartTime <= 0.
+      beforeStartTime = 0.
+      gameStarted = true
+      CreateTimer().startPeriodic(ANIMATION_PERIOD) ->
+        currentTime += ANIMATION_PERIOD
+      GetExpiredTimer()..pause()..destr()

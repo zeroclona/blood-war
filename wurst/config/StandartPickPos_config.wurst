@@ -1,0 +1,5 @@
+package StandartPickPos_config
+
+// @config let badPickPos = vec2(-400., 0.)
+
+// @config let goodPickPos = vec2(3000., 0.)

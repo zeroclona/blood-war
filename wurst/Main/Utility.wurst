@@ -1,0 +1,49 @@
+package Utility
+import Sounds
+import TeamData
+
+public function hint( string str, boolean withTitle)
+  PlaySound(Sounds.hint)
+  printTimed(withTitle?COLOR_GOLD.toColorString()+"Подсказка!|r\n":""+str, 10.)
+
+public function hint( string str, boolean withTitle, real dur)
+  PlaySound(Sounds.hint)
+  printTimed((withTitle?COLOR_GOLD.toColorString()+"Подсказка!|r\n":"")+str, dur)
+
+public function hint(TeamData td, string str, boolean withTitle)
+  for pd in td.playerList
+    if GetLocalPlayer() == pd.p
+      PlaySound(Sounds.hint)
+      printTimedToPlayer(withTitle?COLOR_GOLD.toColorString()+"Подсказка!|r\n":""+str, 10., pd.p)
+
+public function hint(TeamData td, string str, boolean withTitle, real dur)
+  for pd in td.playerList
+    if GetLocalPlayer() == pd.p
+      PlaySound(Sounds.hint)
+      printTimedToPlayer(withTitle?COLOR_GOLD.toColorString()+"Подсказка!|r\n":""+str, dur, pd.p)
+
+public function hint( player p, string str, boolean withTitle)
+  if GetLocalPlayer() == p
+    PlaySound(Sounds.hint)
+    printTimedToPlayer(withTitle?COLOR_GOLD.toColorString()+"Подсказка!|r\n":""+str, 10., p)
+
+public function hint( player p, string str, boolean withTitle, real dur)
+  if GetLocalPlayer() == p
+    PlaySound(Sounds.hint)
+    printTimedToPlayer(withTitle?COLOR_GOLD.toColorString()+"Подсказка!|r\n":""+str, dur, p)
+
+public function hint( string str)
+  hint(str, true)
+public function hint( string str, real dur)
+  hint(str, true, dur)
+public function hint(TeamData td, string str)
+  hint(td, str, true)
+
+public function hint(TeamData td, string str, real dur)
+  hint(td, str, true, dur)
+
+public function hint( player p, string str)
+  hint(p, str, true)
+
+public function hint( player p, string str, real dur)
+  hint(p, str, true, dur)

@@ -1,0 +1,20 @@
+package rocket_ability
+import public ConflagrationConstants
+import public BuffObjEditing
+import ChannelAbilityPreset
+
+public let rocket_ID = compiletime(ABIL_ID_GEN.next())
+
+@compiletime function genObj()
+    new ChannelAbilityPreset(rocket_ID, 1, true)
+    ..setName("пожилая ракета")
+    ..presetTooltipNormal(lvl -> "пожилая ракета")
+    ..presetTooltipNormalExtended(lvl -> "лети родная лети")
+    ..presetIcon(SPELL_ICON)
+    ..presetButtonPosNormal(2, 1)
+    ..presetManaCost(lvl -> 0)
+    ..presetCooldown(lvl -> 4.)
+    ..presetHotkey("X")
+    //..presetOption(Option.TARGETIMAGE, true)
+    ..presetTargetTypes(Targettype.POINT)
+    //..presetAreaofEffect(lvl -> SPELL_RADIUS)

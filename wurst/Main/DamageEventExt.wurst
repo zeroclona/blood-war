@@ -1,0 +1,16 @@
+package DamageEventExt
+import public DamageEvent
+import BloodWarOverall
+import HeroEntity
+
+@configurable public function calcMagicDamageModifier(real marmoramount) returns real
+  if marmoramount >= 0
+    return (marmoramount * 0.06) / (1 + 0.06 * marmoramount)
+  else
+    return  2 - Pow(0.94, -marmoramount)
+
+public function initMagicReduction()
+  DamageEvent.addListener(DAMAGE_EVENT_PRIO_MAGICARMOR) ->
+    print("DamageInstance debug dmg amount = "+DamageEvent.getAmount().toString())
+    if DamageEvent.getType() == DamageType.CODE and DamageEvent.getDamageType() == DAMAGE_TYPE_MAGIC
+      DamageEvent.setAmount(calcMagicDamageModifier(DamageEvent.getTarget().getHeroEntity().attlist.spellarmor.get()) * DamageEvent.getAmount())
