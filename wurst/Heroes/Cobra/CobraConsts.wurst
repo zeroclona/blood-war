@@ -45,6 +45,6 @@ public class Cobra
   static class MstyashayaMolniya
     @configurable static let name = "Мстящая молния"
     static DamageLevelClosure damage = (lvl, spd) -> 100. + 60. * (lvl-1) + 2. * spd
-    static IntLevelClosure addenemycount = lvl -> 5
+    static IntLevelClosure addenemycount = lvl -> 4
     static RealLevelClosure enemytakeradius = lvl -> 500.
     static let icon = Icons.bTNCorpseExplode

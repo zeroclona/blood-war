@@ -2,9 +2,12 @@ package Cobra
 import UnitIds
 import HeroIds
 import UnitObjEditing
+import ChannelAbilityPreset
 import ObjectIds
 import AbilityIds
+import SpellIds
 import CobraConsts
+import AbilityTooltipGenerator
 
 @compiletime function genObj()
   new HeroDefinition(HeroIds.cobra, UnitIds.jaina)
@@ -13,7 +16,7 @@ import CobraConsts
     ..setProperNamesUsed(1)
     ..setTooltipBasic(Cobra.tooltipbasic)
     ..setTooltipExtended(Cobra.tooltipext)
-    ..setHeroAbilities(commaList(AbilityIds.chainLightning1, AbilityIds.blizzard, AbilityIds.shadowHunterHealingWave, AbilityIds.massTeleport))
+    ..setHeroAbilities(commaList(SpellIds.avenginglighting, AbilityIds.blizzard, AbilityIds.shadowHunterHealingWave, AbilityIds.massTeleport))
     ..setNormalAbilities(commaList(AbilityIds.inventory))
     ..setIconGameInterface(Cobra.icon)
     ..setIconScoreScreen(Cobra.scorescreenicon)
@@ -55,3 +58,17 @@ import CobraConsts
     ..setGoldCost(0)
     ..setLumberCost(0)
     ..hideHeroDeathMsg(true)
+
+  new ChannelAbilityPreset(SpellIds.avenginglighting, 5, true, new AbilityTooltipGenerator("ну просто молния кажется") )
+  ..setHeroAbility(true)
+  ..presetButtonPosNormal(0, 2)
+  ..presetTargetTypes(Targettype.UNIT)
+  ..tooltipStartListen()
+  ..presetHotkey("Q")
+  ..setName("Aveng light")
+  ..presetIcon("BTNFrostBolt")
+  ..presetCooldown(lvl -> 1.75 - (lvl / 4))
+  ..presetManaCost(lvl -> 4 - (lvl / 3).toInt())
+  ..presetCastRange(lvl -> 1000.)
+  ..setLevelSkipRequirement(0)
+  ..tooltipStopListen()

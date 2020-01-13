@@ -124,3 +124,6 @@ public class HeroEntity extends Unit2Entity
 
 public function unit.getHeroEntity() returns HeroEntity
   return HeroEntity.list.get(this)
+
+public function unit.getSpellPower() returns real
+  return this.getHeroEntity().attlist.spellpower.get()

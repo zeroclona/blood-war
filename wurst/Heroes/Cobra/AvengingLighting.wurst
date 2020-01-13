@@ -1,28 +1,76 @@
 package AvengingLighting
 
+import HeroEntity
 import CobraConsts
 import SpellIds
 import Spell
+import SoundUtils
 import ClosureForGroups
 import ClosureEvents
+import ClosureTimers
+
+class CustomLightning
+  lightning lgt
+  unit first
+  unit second
+
+  construct(unit f, unit s)
+    first = f
+    second = s
+    lgt = addLightning(LIGHTNING_FINGER_OF_DEATH, false, first.getPos3Fly(), second.getPos3Fly())
+    ..setColor(color(255, 255, 255))
+    doPeriodicallyTimed(0.02,0.5) j ->
+      lgt.move(false, first.getPos3Real(), second.getPos3Real())
+    doAfter(0.5) ->
+      destroy this
+
+  ondestroy
+    lgt.destr()
 
 public class AvengingLighting extends Spell
   static let dmg = Cobra.MstyashayaMolniya.damage
   static let enemycount = Cobra.MstyashayaMolniya.addenemycount
   static let enemyradius = Cobra.MstyashayaMolniya.enemytakeradius
+  let s = new SoundDefinition(Sounds.artilleryCorpseExplodeDeath1, false)
 
-  construct(unit u)
-    super(u, SpellIds.avenginglighting)
+  construct()
+    super(SpellIds.avenginglighting)
     EventListener.onTargetCast(id, (caster, target) -> onSpellEffect(caster, target))
 
   function onSpellEffect(unit caster, unit target)
     print(caster.getName()+" casts an Avenging Lightning")
     let lvl = caster.getAbilityLevel(id)
-    var g = CreateGroup()
-    forUnitsInRange(target.getPos(), enemyradius.run(lvl)) (unit u) ->
+    var g = CreateGroup()..enumUnitsInRange(target.getPos(), enemyradius.run(lvl), Filter(function stdEnemyFilter))..removeUnit(target)
+    var targets = CreateGroup()..addUnit(target)
+    for int i = 0 to enemycount.run(lvl)
+      var maxdist = REAL_MAX
+      unit nearest = null
+      for unit u in g
+        let distSq = target.getPos().distanceToSq(u.getPos())
+        if distSq < maxdist
+          nearest = u
+          maxdist = distSq
+      g.removeUnit(nearest)
+      targets.addUnit(nearest)
+    g.forEachIn() (unit u) ->
+      print("g contains "+u.getName())
+    targets.forEachFrom() (unit u) ->
+      damageTarget(caster, u, dmg.run(lvl, caster.getSpellPower()), DAMAGE_TYPE_MAGIC)
+      //artilleryCorpseExplodeDeath1
+      s.playOnPoint(u.getPos3Real(), 1)
+      new CustomLightning(caster, u)
 
 
-    //TUT ODIN UNIT NADO NE ODIN
+init
+  new AvengingLighting()
+
+
+
+
+
+
+
+    //TUT ODIN UNIT NADO NE ODIN2
 
 
     //if caster.isEnemyOf(u) and
