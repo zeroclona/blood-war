@@ -3,48 +3,53 @@ import Icons
 import Units
 import Abilities
 import Spell
+import Sounds
 
 constant STD_COLLISION_SIZE = 28.
 
 public class Cobra
-  @configurable static let name = "Чернокнижник"
-  @configurable static let propname1 = "Кобра"
-  @configurable static let tooltipbasic = "Кобра, Чернокнижник |cffffcc00("+hotkey+")|R"
-  @configurable static let tooltipext = "кобра дохрена черножопник"
-  @configurable static let basemagicpower = 0
-  @configurable static let rangeornot = 1
-  @configurable static let baseattack = 45
-  @configurable static let attackrange = 600
-  @configurable static let baseattacktime = 1.38
-  @configurable static let basephisarmor = 1
-  @configurable static let basemagarmor = 1
-  @configurable static let basehp = 430
-  @configurable static let hpinc = 21
-  @configurable static let basemp = 600
-  @configurable static let mpinc = 25
-  @configurable static let baseHPps = 3.1
-  @configurable static let basemeditregen = 2.7
-  @configurable static let baseMPps = 2.
-  @configurable static let basespeed = 275
-  @configurable static let buttonX = 3
-  @configurable static let buttonY = 0
-  @configurable static let hotkey = "V"
-  @configurable static let icon = Icons.bTNAcolyte
-  @configurable static let scorescreenicon = Icons.bTNAcolyte
-  @configurable static let modelfile = Units.acolyte1
-  @configurable static let colsize = STD_COLLISION_SIZE
-  @configurable static let projart = Abilities.bloodElfMissile
-  @configurable static let projspeed = 700
-  @configurable static let soundset = "necromancer"
-  @configurable static let turnrate = 2.
-  @configurable static let primattribute = "Intelligence"
-  @configurable static let sightday = 1800
-  @configurable static let sightnight = 1000
+  static let name           = "Чернокнижник"
+  static let propname1      = "Кобра"
+  static let tooltipbasic   = "Кобра, Чернокнижник |cffffcc00("+hotkey+")|R"
+  static let tooltipext     = "кобра дохрена черножопник"
+  static let basemagicpower = 0
+  static let rangeornot     = 1
+  static let baseattack     = 45
+  static let attackrange    = 600
+  static let baseattacktime = 1.38
+  static let basephisarmor  = 1
+  static let basemagarmor   = 1
+  static let basehp         = 430
+  static let hpinc          = 21
+  static let basemp         = 600
+  static let mpinc          = 25
+  static let baseHPps       = 3.1
+  static let basemeditregen = 2.7
+  static let baseMPps       = 2.
+  static let basespeed      = 275
+  static let buttonX        = 3
+  static let buttonY        = 0
+  static let hotkey         = "V"
+  static let icon           = Icons.bTNAcolyte
+  static let scorescreenicon = Icons.bTNAcolyte
+  static let modelfile      = Units.acolyte1
+  static let colsize        = STD_COLLISION_SIZE
+  static let projart        = Abilities.bloodElfMissile
+  static let projspeed      = 700
+  static let soundset       = "necromancer"
+  static let turnrate       = 2.
+  static let primattribute  = "Intelligence"
+  static let sightday       = 1800
+  static let sightnight     = 1000
 
 
-  static class MstyashayaMolniya
-    @configurable static let name = "Мстящая молния"
-    static DamageLevelClosure damage = (lvl, spd) -> 100. + 60. * (lvl-1) + 2. * spd
-    static IntLevelClosure addenemycount = lvl -> 4
+  static class AvengingLgt
+    static let name                         = "Мстящая молния"
+    static DamageLevelClosure damage        = (lvl, spd) -> 100. + 60. * (lvl-1) + 2. * spd
+    static IntLevelClosure addenemycount    = lvl -> 4
     static RealLevelClosure enemytakeradius = lvl -> 500.
-    static let icon = Icons.bTNCorpseExplode
+    static let icon                         = Icons.bTNCorpseExplode
+    static let impactsound                  = Sounds.artilleryCorpseExplodeDeath1
+    static let lgtcolor                     = color(255, 255, 255)
+    static let lgtmoveperiod                = .02 //Период перемещения молнии
+    static let lgtmovetime                  = 0.5   //Время эффекта молнии

@@ -5,44 +5,57 @@ import CobraConsts
 import SpellIds
 import Spell
 import SoundUtils
-import ClosureForGroups
 import ClosureEvents
 import ClosureTimers
 
-class CustomLightning
-  lightning lgt
-  unit first
-  unit second
+class LightningEffect
+  private lightning lgt
+  private unit first
+  private unit second
 
   construct(unit f, unit s)
     first = f
     second = s
     lgt = addLightning(LIGHTNING_FINGER_OF_DEATH, false, first.getPos3Fly(), second.getPos3Fly())
-    ..setColor(color(255, 255, 255))
-    doPeriodicallyTimed(0.02,0.5) j ->
+    ..setColor(Cobra.AvengingLgt.lgtcolor)
+    doPeriodicallyTimed(Cobra.AvengingLgt.lgtmoveperiod, Cobra.AvengingLgt.lgtmovetime) j ->
       lgt.move(false, first.getPos3Real(), second.getPos3Real())
-    doAfter(0.5) ->
+    doAfter(Cobra.AvengingLgt.lgtmovetime) ->
       destroy this
 
   ondestroy
     lgt.destr()
 
 public class AvengingLighting extends Spell
-  static let dmg = Cobra.MstyashayaMolniya.damage
-  static let enemycount = Cobra.MstyashayaMolniya.addenemycount
-  static let enemyradius = Cobra.MstyashayaMolniya.enemytakeradius
-  let s = new SoundDefinition(Sounds.artilleryCorpseExplodeDeath1, false)
+  static let dmg = Cobra.AvengingLgt.damage
+  static let enemycount = Cobra.AvengingLgt.addenemycount
+  static let enemyradius = Cobra.AvengingLgt.enemytakeradius
+  let s = new SoundDefinition(Cobra.AvengingLgt.impactsound, false)
+  unit filterunit
 
   construct()
     super(SpellIds.avenginglighting)
-    EventListener.onTargetCast(id, (caster, target) -> onSpellEffect(caster, target))
+    EventListener.onTargetCast(id, (source, target) -> onSpellEffect(source, target))
 
-  function onSpellEffect(unit caster, unit target)
-    print(caster.getName()+" casts an Avenging Lightning")
-    let lvl = caster.getAbilityLevel(id)
-    var g = CreateGroup()..enumUnitsInRange(target.getPos(), enemyradius.run(lvl), Filter(function stdEnemyFilter))..removeUnit(target)
-    var targets = CreateGroup()..addUnit(target)
-    for int i = 0 to enemycount.run(lvl)
+  function impact(unit source, unit target, real damage) // source, target, damage
+    damageTarget(source, target, damage, DAMAGE_TYPE_MAGIC)
+    s.playOnPoint(target.getPos3Real(), 1)
+    new LightningEffect(source, target)
+
+  function targetFilter() returns bool
+    return stdEnemyTargetCheck(filterunit, GetFilterUnit())
+
+
+  function onSpellEffect(unit source, unit target)
+    print(source.getName()+" casts an Avenging Lightning")
+    let lvl = source.getAbilityLevel(id)
+    let damage = dmg.run(lvl, source.getSpellPower())
+    filterunit = source
+    var g = CreateGroup()..enumUnitsInRange(target.getPos(), enemyradius.run(lvl), Filter(function stdTargetFilter))..removeUnit(target)
+    filterunit = null
+
+    impact(source, target, damage)
+    for int i = 0 to enemycount.run(lvl) + 1
       var maxdist = REAL_MAX
       unit nearest = null
       for unit u in g
@@ -51,26 +64,12 @@ public class AvengingLighting extends Spell
           nearest = u
           maxdist = distSq
       g.removeUnit(nearest)
-      targets.addUnit(nearest)
-    g.forEachIn() (unit u) ->
-      print("g contains "+u.getName())
-    targets.forEachFrom() (unit u) ->
-      damageTarget(caster, u, dmg.run(lvl, caster.getSpellPower()), DAMAGE_TYPE_MAGIC)
-      //artilleryCorpseExplodeDeath1
-      s.playOnPoint(u.getPos3Real(), 1)
-      new CustomLightning(caster, u)
+      impact(source, nearest, damage)
+    g.destr()
+
+
+//try to change targets.addunit into 58-61 (to get out a group)
 
 
 init
   new AvengingLighting()
-
-
-
-
-
-
-
-    //TUT ODIN UNIT NADO NE ODIN2
-
-
-    //if caster.isEnemyOf(u) and

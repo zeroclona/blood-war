@@ -19,11 +19,17 @@ abstract function onSpellEffect(unit caster, unit target)
 abstract function onSpellEffect(unit caster, vec2 pos)
 */
 
-public function stdEnemyCheck(unit u) returns bool
+public function stdTargetCheck(unit u) returns bool
   return u.isAlive() and not u.isType(UNIT_TYPE_MAGIC_IMMUNE) and not u.isType(UNIT_TYPE_STRUCTURE)
 
-public function stdEnemyFilter() returns bool
-  return stdEnemyCheck(GetFilterUnit())
+public function stdTargetFilter() returns bool
+  return stdTargetCheck(GetFilterUnit())
+
+public function stdEnemyTargetCheck(unit toWhom, unit t) returns bool
+  return t.isEnemyOf(toWhom) and stdTargetCheck(t)
+
+public function stdAllyTargetCheck(unit toWhom, unit t) returns bool
+  return t.isAllyOf(toWhom) and stdTargetCheck(t)
 
 public abstract class Spell
   static let list = new LinkedList<Spell>
