@@ -1,10 +1,11 @@
-package AvengingLighting
+package VengefulLighting
 
-import HeroEntity
+
 import CobraConsts
 import SpellIds
 import Spell
 import SoundUtils
+import HeroEntity
 import ClosureEvents
 import ClosureTimers
 
@@ -17,41 +18,41 @@ class LightningEffect
     first = f
     second = s
     lgt = addLightning(LIGHTNING_FINGER_OF_DEATH, false, first.getPos3Fly(), second.getPos3Fly())
-    ..setColor(Cobra.AvengingLgt.lgtcolor)
-    doPeriodicallyTimed(Cobra.AvengingLgt.lgtmoveperiod, Cobra.AvengingLgt.lgtmovetime) j ->
+    ..setColor(Cobra.VengefulLgt.lgtcolor)
+    doPeriodicallyTimed(Cobra.VengefulLgt.lgtmoveperiod, Cobra.VengefulLgt.lgtmovetime) cb ->
       lgt.move(false, first.getPos3Real(), second.getPos3Real())
-    doAfter(Cobra.AvengingLgt.lgtmovetime) ->
-      destroy this
+      if cb.isLast()
+        destroy this
 
   ondestroy
     lgt.destr()
 
-public class AvengingLighting extends Spell
-  static let dmg = Cobra.AvengingLgt.damage
-  static let enemycount = Cobra.AvengingLgt.addenemycount
-  static let enemyradius = Cobra.AvengingLgt.enemytakeradius
-  let s = new SoundDefinition(Cobra.AvengingLgt.impactsound, false)
-  unit filterunit
+public class VengefulLightning extends Spell
+  static let dmg = Cobra.VengefulLgt.damage
+  static let enemycount = Cobra.VengefulLgt.addenemycount
+  static let enemyradius = Cobra.VengefulLgt.enemytakeradius
+  let s = new SoundDefinition(Cobra.VengefulLgt.impactsound, false)
+  static unit filterunit
 
   construct()
-    super(SpellIds.avenginglighting)
+    super(SpellIds.vengefullightning)
     EventListener.onTargetCast(id, (source, target) -> onSpellEffect(source, target))
 
   function impact(unit source, unit target, real damage) // source, target, damage
-    damageTarget(source, target, damage, DAMAGE_TYPE_MAGIC)
+    damageTarget(source, target, damage, Cobra.VengefulLgt.dmgtype)
     s.playOnPoint(target.getPos3Real(), 1)
     new LightningEffect(source, target)
 
-  function targetFilter() returns bool
+  static function targetFilter() returns bool
     return stdEnemyTargetCheck(filterunit, GetFilterUnit())
 
 
   function onSpellEffect(unit source, unit target)
-    print(source.getName()+" casts an Avenging Lightning")
+    print(source.getName()+" casts an Vengeful Lightning")
     let lvl = source.getAbilityLevel(id)
     let damage = dmg.run(lvl, source.getSpellPower())
     filterunit = source
-    var g = CreateGroup()..enumUnitsInRange(target.getPos(), enemyradius.run(lvl), Filter(function stdTargetFilter))..removeUnit(target)
+    var g = CreateGroup()..enumUnitsInRange(target.getPos(), enemyradius.run(lvl), Filter(function targetFilter))..removeUnit(target)
     filterunit = null
 
     impact(source, target, damage)
@@ -64,7 +65,10 @@ public class AvengingLighting extends Spell
           nearest = u
           maxdist = distSq
       g.removeUnit(nearest)
-      impact(source, nearest, damage)
+      if nearest != null
+        impact(source, nearest, damage)
+      else
+        break
     g.destr()
 
 
@@ -72,4 +76,4 @@ public class AvengingLighting extends Spell
 
 
 init
-  new AvengingLighting()
+  new VengefulLightning()

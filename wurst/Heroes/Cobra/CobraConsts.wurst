@@ -4,13 +4,14 @@ import Units
 import Abilities
 import Spell
 import Sounds
+import TargetsAllowed
 
 constant STD_COLLISION_SIZE = 28.
 
 public class Cobra
   static let name           = "Чернокнижник"
   static let propname1      = "Кобра"
-  static let tooltipbasic   = "Кобра, Чернокнижник |cffffcc00("+hotkey+")|R"
+  static let tooltipbasic   = "Кобра, Чернокнижник |cffFFCC00("+hotkey+")|R"
   static let tooltipext     = "кобра дохрена черножопник"
   static let basemagicpower = 0
   static let rangeornot     = 1
@@ -43,13 +44,37 @@ public class Cobra
   static let sightnight     = 1000
 
 
-  static class AvengingLgt
+  static class VengefulLgt
     static let name                         = "Мстящая молния"
+    static let hotkey                       = "Q"
+    static let hotkeyX                      = 0
+    static let hotkeyY                      = 2
     static DamageLevelClosure damage        = (lvl, spd) -> 100. + 60. * (lvl-1) + 2. * spd
     static IntLevelClosure addenemycount    = lvl -> 4
     static RealLevelClosure enemytakeradius = lvl -> 500.
+    static IntLevelClosure manacost         = lvl -> 4 - (lvl / 3).toInt()
+    static RealLevelClosure cooldown        = lvl -> 1.75 - (lvl / 4)
+    static RealLevelClosure castrange       = lvl -> 900.
+    static StringLevelClosure targetallowed = (int lvl) -> TargetsAllowed.alive + TargetsAllowed.enemies + TargetsAllowed.organic + TargetsAllowed.vulnerable
+    static let dmgtype                      = DAMAGE_TYPE_MAGIC
     static let icon                         = Icons.bTNCorpseExplode
     static let impactsound                  = Sounds.artilleryCorpseExplodeDeath1
     static let lgtcolor                     = color(255, 255, 255)
     static let lgtmoveperiod                = .02 //Период перемещения молнии
     static let lgtmovetime                  = 0.5   //Время эффекта молнии
+
+  static class Infection
+    static let name                         = "Заражение"
+    static let hotkey                       = "W"
+    static let hotkeyX                      = 1
+    static let hotkeyY                      = 2
+    static DamageLevelClosure damage        = (lvl, spd) -> 30. + 18. * (lvl-1) + .6 * spd
+    static IntLevelClosure manacost         = lvl -> 4 - (lvl / 3).toInt()
+    static RealLevelClosure cooldown        = lvl -> 1.75 - (lvl / 4)
+    static RealLevelClosure castrange       = lvl -> 750.
+    static StringLevelClosure targetallowed = (int lvl) -> TargetsAllowed.alive + TargetsAllowed.enemies + TargetsAllowed.organic + TargetsAllowed.vulnerable
+    static let dmgtype                      = DAMAGE_TYPE_MAGIC
+    static let icon                         = Icons.pASBTNPlagueCloud
+    static let impactsound                  = Sounds.carrionSwarmDamage2
+    static let dmgeffect                    = Abilities.poisonArrowMissile
+    static let aoeeffect                    = Abilities.plagueCloudCaster

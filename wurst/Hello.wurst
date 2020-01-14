@@ -58,7 +58,8 @@ init
   ..addInt(1000)
   ..setLevel(10, false)
   //CreateUnit(Player(4), JOYCE_ID, -400, 0, 228.600)
-
+  for i = 0 to 25
+    CreateUnit(players[5], 'ogru', 0, -2000, 0)
   for u from g
     UnitAddAbility(u, SPELL_ID)
   /*for i = 1 to 20

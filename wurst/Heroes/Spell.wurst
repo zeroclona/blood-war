@@ -2,7 +2,6 @@ package Spell
 import public ObjEditingNatives
 import LinkedList
 import DamageEvent
-import ClosureEvents
 
 public interface DamageFilterClosure
   function check(unit source, unit target) returns bool
@@ -20,7 +19,7 @@ abstract function onSpellEffect(unit caster, vec2 pos)
 */
 
 public function stdTargetCheck(unit u) returns bool
-  return u.isAlive() and not u.isType(UNIT_TYPE_MAGIC_IMMUNE) and not u.isType(UNIT_TYPE_STRUCTURE)
+  return u.isAlive() and not u.isType(UNIT_TYPE_MAGIC_IMMUNE) and not u.isType(UNIT_TYPE_STRUCTURE) and not u.hasAbility('Aloc')
 
 public function stdTargetFilter() returns bool
   return stdTargetCheck(GetFilterUnit())
@@ -42,5 +41,11 @@ public abstract class Spell
   function damageTarget(unit source, unit target, real dmgamount, damagetype dmgtype/*, DamageFilterClosure dfc*/)
     //if dfc.check(source, target)
     DamageEvent.setNextDamageFromCode()
-    DamageEvent.setNextDamageId(this.id)
+    DamageEvent.setNextDamageId(id)
+    source.damageTarget(target, dmgamount, true, false, ATTACK_TYPE_MAGIC, dmgtype, WEAPON_TYPE_WHOKNOWS)
+
+  static function damageTarget(int id, unit source, unit target, real dmgamount, damagetype dmgtype/*, DamageFilterClosure dfc*/)
+    //if dfc.check(source, target)
+    DamageEvent.setNextDamageFromCode()
+    DamageEvent.setNextDamageId(id)
     source.damageTarget(target, dmgamount, true, false, ATTACK_TYPE_MAGIC, dmgtype, WEAPON_TYPE_WHOKNOWS)

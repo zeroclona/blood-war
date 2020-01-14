@@ -1,0 +1,61 @@
+package Infection
+import Spell
+import SpellIds
+import CobraConsts
+import HeroEntity
+import ClosureEvents
+import ClosureTimers
+import ClosureForGroups
+import TimerUtils
+
+class Infected
+  unit source
+  unit target
+  real damage
+  private var direction = 1
+
+  construct(unit s, unit t, real dmg)
+    source = s
+    target = t
+    damage = dmg * 0.5
+    print("damage = "+damage.toString())
+    doPeriodicallyTimed(0.5, 5.) (CallbackCounted cb) ->
+      forUnitsInRange(target.getPos(), 250.) (unit u) ->
+        if stdEnemyTargetCheck(source, u)
+          Infection.damageTarget(SpellIds.infect, source, target, damage, Cobra.Infection.dmgtype)
+          flashEffect(Cobra.Infection.dmgeffect, u, "origin")
+      if cb.isLast()
+        destroy this
+    doPeriodicallyTimed(0.25, 5.) (CallbackCounted cb) ->
+      direction++
+      if direction > 3
+        direction = 1
+      let r = GetRandomReal(20., 250.)
+      var a = (PI2/3)*direction
+      a = GetRandomReal(a, a+PI2/3)
+      effect eff = addEffect(Cobra.Infection.aoeeffect, target.getPos()+vec2(r*Cos(a), r*Sin(a)))
+      doAfter(0.25) ->
+        eff.destr()
+
+
+
+
+
+
+
+public class Infection extends Spell
+  static let dmg = Cobra.Infection.damage
+
+  construct()
+    super(SpellIds.infect)
+    EventListener.onTargetCast(id, (source, target) -> onSpellEffect(source, target))
+
+  function onSpellEffect(unit source, unit target)
+    print(source.getName()+" casts an Infection")
+    let lvl = source.getAbilityLevel(id)
+    print(source.getAbilityLevel(id))
+    print(dmg.run(lvl, source.getSpellPower()))
+    new Infected(source, target, dmg.run(lvl, source.getSpellPower()))
+
+init
+  new Infection()

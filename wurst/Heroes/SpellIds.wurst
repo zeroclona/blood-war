@@ -12,9 +12,10 @@ public class SpellIds
 
 
   ////ExampleHero
-  static let examplespell = compiletime(ABIL_ID_GEN.next())
-  static let newnamespell = compiletime(ABIL_ID_GEN.next())
+  static let examplespell      = compiletime(ABIL_ID_GEN.next())
+  static let newnamespell      = compiletime(ABIL_ID_GEN.next())
 
 
   ////Cobra
-  static let avenginglighting = compiletime(ABIL_ID_GEN.next())
+  static let vengefullightning = compiletime(ABIL_ID_GEN.next())
+  static let infect            = compiletime(ABIL_ID_GEN.next())
