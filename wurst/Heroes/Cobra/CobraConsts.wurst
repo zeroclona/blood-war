@@ -5,6 +5,7 @@ import Abilities
 import Spell
 import Sounds
 import TargetsAllowed
+import ObjectIds
 
 constant STD_COLLISION_SIZE = 28.
 
@@ -55,7 +56,7 @@ public class Cobra
     static IntLevelClosure manacost         = lvl -> 4 - (lvl / 3).toInt()
     static RealLevelClosure cooldown        = lvl -> 1.75 - (lvl / 4)
     static RealLevelClosure castrange       = lvl -> 900.
-    static StringLevelClosure targetallowed = (int lvl) -> TargetsAllowed.alive + TargetsAllowed.enemies + TargetsAllowed.organic + TargetsAllowed.vulnerable
+    static StringLevelClosure targetallowed = (int lvl) -> commaList(TargetsAllowed.air, TargetsAllowed.ground, TargetsAllowed.enemies, TargetsAllowed.organic, TargetsAllowed.neutral)
     static let dmgtype                      = DAMAGE_TYPE_MAGIC
     static let icon                         = Icons.bTNCorpseExplode
     static let impactsound                  = Sounds.artilleryCorpseExplodeDeath1
@@ -72,7 +73,7 @@ public class Cobra
     static IntLevelClosure manacost         = lvl -> 4 - (lvl / 3).toInt()
     static RealLevelClosure cooldown        = lvl -> 1.75 - (lvl / 4)
     static RealLevelClosure castrange       = lvl -> 750.
-    static StringLevelClosure targetallowed = (int lvl) -> TargetsAllowed.alive + TargetsAllowed.enemies + TargetsAllowed.organic + TargetsAllowed.vulnerable
+    static StringLevelClosure targetallowed = (int lvl) -> commaList(TargetsAllowed.air, TargetsAllowed.ground, TargetsAllowed.enemies, TargetsAllowed.organic, TargetsAllowed.neutral)
     static let dmgtype                      = DAMAGE_TYPE_MAGIC
     static let icon                         = Icons.pASBTNPlagueCloud
     static let impactsound                  = Sounds.carrionSwarmDamage2

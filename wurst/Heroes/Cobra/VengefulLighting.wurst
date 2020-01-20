@@ -37,44 +37,36 @@ public class VengefulLightning extends Spell
   construct()
     super(SpellIds.vengefullightning)
     s = new SoundDefinition(Cobra.VengefulLgt.impactsound, false)
-    EventListener.onTargetCast(id, (source, target) -> onSpellEffect(source, target))
+    EventListener.onTargetCast(id) (source, target) ->
+      print(source.getName()+" casts an Vengeful Lightning")
+      let lvl = source.getAbilityLevel(id)
+      let damage = dmg.run(lvl, source.getSpellPower())
+      var g = CreateGroup()..enumUnitsInRange(target.getPos(), enemyradius.run(lvl), null)..removeUnit(target)
+
+      impact(source, target, damage)
+      for int i = 0 to enemycount.run(lvl)
+        var maxdist = REAL_MAX
+        unit nearest = null
+        for unit u in g
+          if stdEnemyTargetCheck(source, u)
+            let distSq = target.getPos().distanceToSq(u.getPos())
+            if distSq < maxdist
+              nearest = u
+              maxdist = distSq
+          else
+            g.removeUnit(u)
+        g.removeUnit(nearest)
+        if nearest != null
+          impact(source, nearest, damage)
+        else
+          break
+      g.destr()
 
   function impact(unit source, unit target, real damage) // source, target, damage
+    print(damage)
     damageTarget(source, target, damage, Cobra.VengefulLgt.dmgtype)
     s.playOnPoint(target.getPos3Real(), 1)
     new LightningEffect(source, target)
-
-  static function targetFilter() returns bool
-    return stdEnemyTargetCheck(filterunit, GetFilterUnit())
-
-
-  function onSpellEffect(unit source, unit target)
-    print(source.getName()+" casts an Vengeful Lightning")
-    let lvl = source.getAbilityLevel(id)
-    let damage = dmg.run(lvl, source.getSpellPower())
-    filterunit = source
-    var g = CreateGroup()..enumUnitsInRange(target.getPos(), enemyradius.run(lvl), Filter(function targetFilter))..removeUnit(target)
-    filterunit = null
-
-    impact(source, target, damage)
-    for int i = 0 to enemycount.run(lvl) + 1
-      var maxdist = REAL_MAX
-      unit nearest = null
-      for unit u in g
-        let distSq = target.getPos().distanceToSq(u.getPos())
-        if distSq < maxdist
-          nearest = u
-          maxdist = distSq
-      g.removeUnit(nearest)
-      if nearest != null
-        impact(source, nearest, damage)
-      else
-        break
-    g.destr()
-
-
-//try to change targets.addunit into 58-61 (to get out a group)
-
 
 init
   new VengefulLightning()

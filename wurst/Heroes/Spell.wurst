@@ -6,17 +6,13 @@ import DamageEvent
 public interface DamageFilterClosure
   function check(unit source, unit target) returns bool
 
-public constant DamageFilterClosure STD_DFC_CLOSURE = (s, t) -> t.isAlive() and s.isEnemyOf(t) and not t.isType(UNIT_TYPE_STRUCTURE) and not t.isType(UNIT_TYPE_MAGIC_IMMUNE)
+public constant DamageFilterClosure STD_DFC_CLOSURE = (s, t) -> t.isAlive() and s.isEnemyOf(t) and not t.isType(UNIT_TYPE_STRUCTURE) and not t.isType(UNIT_TYPE_MAGIC_IMMUNE) and not t.hasAbility('Aloc')
 
 public interface DamageLevelClosure
   function run(int lvl, real spellpower) returns real
-/**
-abstract function onSpellEffect(unit caster)
 
-abstract function onSpellEffect(unit caster, unit target)
 
-abstract function onSpellEffect(unit caster, vec2 pos)
-*/
+
 
 public function stdTargetCheck(unit u) returns bool
   return u.isAlive() and not u.isType(UNIT_TYPE_MAGIC_IMMUNE) and not u.isType(UNIT_TYPE_STRUCTURE) and not u.hasAbility('Aloc')
@@ -37,6 +33,7 @@ public abstract class Spell
   construct(int newid)
     id = newid
     list.add(this)
+
 
   function damageTarget(unit source, unit target, real dmgamount, damagetype dmgtype/*, DamageFilterClosure dfc*/)
     //if dfc.check(source, target)
