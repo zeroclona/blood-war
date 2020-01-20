@@ -7,33 +7,47 @@ import ClosureEvents
 import ClosureTimers
 import ClosureForGroups
 import TimerUtils
+import SoundUtils
 
 class Infected
   unit source
-  unit target
+  unit infectedunit
   real damage
   private var direction = 1
 
+  private function damageTarget(unit enemy)
+    Infection.damageTarget(SpellIds.infect, source, enemy, damage, Cobra.Infection.dmgtype)
+    flashEffect(Cobra.Infection.dmgeffect, enemy, "origin")
+
   construct(unit s, unit t, real dmg)
     source = s
-    target = t
+    infectedunit = t
     damage = dmg * 0.5
     print("damage = "+damage.toString())
+    Infection.s.playOnPoint(t.getPos3Real(), 10)
     doPeriodicallyTimed(0.5, 5.) (CallbackCounted cb) ->
-      forUnitsInRange(target.getPos(), 250.) (unit u) ->
-        if stdEnemyTargetCheck(source, u)
-          Infection.damageTarget(SpellIds.infect, source, target, damage, Cobra.Infection.dmgtype)
-          flashEffect(Cobra.Infection.dmgeffect, u, "origin")
+      bool isAlone = true
+
+      forUnitsInRange(infectedunit.getPos(), 250.) (unit u) ->
+        if stdEnemyTargetCheck(source, u) and u!=infectedunit
+          damageTarget(u)
+          if isAlone
+            isAlone = false
+      if isAlone
+        damageTarget(infectedunit)
+
+        Infection.damageTarget(SpellIds.infect, source, infectedunit, damage, Cobra.Infection.dmgtype)
+
       if cb.isLast()
         destroy this
-    doPeriodicallyTimed(0.25, 5.) (CallbackCounted cb) ->
+    doPeriodicallyTimed(0.100, 5.) (CallbackCounted cb) ->
       direction++
       if direction > 3
         direction = 1
       let r = GetRandomReal(20., 250.)
       var a = (PI2/3)*direction
       a = GetRandomReal(a, a+PI2/3)
-      effect eff = addEffect(Cobra.Infection.aoeeffect, target.getPos()+vec2(r*Cos(a), r*Sin(a)))
+      effect eff = addEffect(Cobra.Infection.aoeeffect, infectedunit.getPos()+vec2(r*Cos(a), r*Sin(a)))
       doAfter(0.25) ->
         eff.destr()
 
@@ -44,10 +58,12 @@ class Infected
 
 
 public class Infection extends Spell
+  static SoundDefinition s
   static let dmg = Cobra.Infection.damage
 
   construct()
     super(SpellIds.infect)
+    s = new SoundDefinition(Cobra.Infection.impactsound, false)
     EventListener.onTargetCast(id, (source, target) -> onSpellEffect(source, target))
 
   function onSpellEffect(unit source, unit target)

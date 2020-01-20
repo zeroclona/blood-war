@@ -31,11 +31,12 @@ public class VengefulLightning extends Spell
   static let dmg = Cobra.VengefulLgt.damage
   static let enemycount = Cobra.VengefulLgt.addenemycount
   static let enemyradius = Cobra.VengefulLgt.enemytakeradius
-  let s = new SoundDefinition(Cobra.VengefulLgt.impactsound, false)
+  static SoundDefinition s
   static unit filterunit
 
   construct()
     super(SpellIds.vengefullightning)
+    s = new SoundDefinition(Cobra.VengefulLgt.impactsound, false)
     EventListener.onTargetCast(id, (source, target) -> onSpellEffect(source, target))
 
   function impact(unit source, unit target, real damage) // source, target, damage
