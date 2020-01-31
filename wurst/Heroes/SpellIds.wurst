@@ -19,3 +19,6 @@ public class SpellIds
   ////Cobra
   static let vengefullightning = compiletime(ABIL_ID_GEN.next())
   static let infect            = compiletime(ABIL_ID_GEN.next())
+  static let bloodritual       = compiletime(ABIL_ID_GEN.next())
+
+  static let bloodritualbuff   = compiletime(BUFF_ID_GEN.next())

@@ -6,13 +6,14 @@ import Spell
 import Sounds
 import TargetsAllowed
 import ObjectIds
+import Objects
 
 constant STD_COLLISION_SIZE = 28.
 
 public class Cobra
   static let name           = "Чернокнижник"
   static let propname1      = "Кобра"
-  static let tooltipbasic   = "Кобра, Чернокнижник |cffFFCC00("+hotkey+")|R"
+  static let tooltipbasic   = "Кобра, Чернокнижник (|cffffcc00"+hotkey+"|r)"
   static let tooltipext     = "кобра дохрена черножопник"
   static let basemagicpower = 0
   static let rangeornot     = 1
@@ -79,3 +80,27 @@ public class Cobra
     static let impactsound                  = Sounds.carrionSwarmDamage2
     static let dmgeffect                    = Abilities.poisonArrowMissile
     static let aoeeffect                    = Abilities.plagueCloudCaster
+
+  static class BloodRitual
+    static let name                         = "Ритуал крови"
+    static let hotkey                       = "R"
+    static let hotkeyX                      = 3
+    static let hotkeyY                      = 2
+    static let tooltipLearn                 = "Изучить Ритуал крови, [|cffffcc00Уровень %d|r] (|cffffcc00R|r)"
+    static let tooltipLearnExtended         = "изучишь - молодец"
+    static StringLevelClosure tooltipNormal                = lvl -> "Ритуал крови, [|cffffcc00Уровень "+lvl.toString()+"|r] (|cffffcc00R|r)"
+    static StringLevelClosure tooltipNormalExtended        = lvl -> "бульбуль"
+    static StringLevelClosure tooltipTurnOff               = lvl -> "Выключить Ритуал крови, [|cffffcc00Уровень "+lvl.toString()+"|r] (|cffffcc00R|r)"
+    static StringLevelClosure tooltipTurnOffExtended       = lvl -> "выключить бульбуль"
+
+    static RealLevelClosure healthloss      = lvl -> 50. + 25. * (lvl-1)
+    static RealLevelClosure managain        = lvl -> 60. + 35. * (lvl-1)
+    static let gainperiod                   = 0.8
+
+
+    static RealLevelClosure cooldown        = lvl -> 0.
+    static IntLevelClosure manacost         = lvl -> 0
+    static StringLevelClosure targetallowed = lvl -> TargetsAllowed.none
+    static let icon                         = Icons.bTNSacrifice
+    static let impactsound                  = Sounds.carrionSwarmDamage2
+    static let art                          = Objects.battrollBlood
