@@ -8,6 +8,7 @@ import SoundUtils
 import HeroEntity
 import ClosureEvents
 import ClosureTimers
+constant isdebug = false
 
 class LightningEffect
   private lightning lgt
@@ -38,7 +39,8 @@ public class VengefulLightning extends Spell
     super(SpellIds.vengefullightning)
     s = new SoundDefinition(Cobra.VengefulLgt.impactsound, false)
     EventListener.onTargetCast(id) (source, target) ->
-      print(source.getName()+" casts an Vengeful Lightning")
+      if isdebug
+        print(source.getName()+" casts an Vengeful Lightning")
       let lvl = source.getAbilityLevel(id)
       let damage = dmg.run(lvl, source.getSpellPower())
       var g = CreateGroup()..enumUnitsInRange(target.getPos(), enemyradius.run(lvl), null)..removeUnit(target)
@@ -63,7 +65,8 @@ public class VengefulLightning extends Spell
       g.destr()
 
   function impact(unit source, unit target, real damage) // source, target, damage
-    print(damage)
+    if isdebug
+      print(damage)
     damageTarget(source, target, damage, Cobra.VengefulLgt.dmgtype)
     s.playOnPoint(target.getPos3Real(), 1)
     new LightningEffect(source, target)

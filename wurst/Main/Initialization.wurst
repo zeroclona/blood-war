@@ -23,8 +23,8 @@ init
     VisBlockCoords.initialize()
     initPlayerData()
     HeroEntity.initialize()
-    RecentDamage.initlialize()
-    registerHeroDeaths() //////////INITLATER!!!!
+    //RecentDamage.initlialize()
+    //registerHeroDeaths() //////////INITLATER!!!!
     startEntityLoop()
     initShop()
     initTeams() //// ????????

@@ -75,6 +75,8 @@ public class HeroEntity extends Unit2Entity
 
   // function setIcon()
   //   icon = HeroIds.getIcon(actor.getTypeId())
+  static function get(unit u) returns HeroEntity
+    return list.get(u)
 
   function icon() returns string
     return HeroIds.icon(actor.getTypeId())
@@ -108,14 +110,14 @@ public class HeroEntity extends Unit2Entity
       if IsUnitType(u, UNIT_TYPE_HERO)
         if u.getEntity() != null
           u.setEntity(null)
-        let he = new HeroEntity(u)
+        new HeroEntity(u)
      //   new LastDamage(he)
     onEnter()->
       let u = GetEnteringUnit()
       if IsUnitType(u, UNIT_TYPE_HERO) and not list.hasKey(u)
         if u.getEntity() != null
           u.setEntity(null)
-        let he = new HeroEntity(u)
+        new HeroEntity(u)
      //   new LastDamage(he)
     for pd in PlayerData.list
       HeroEntity.list.forEach() (unit u, HeroEntity he) ->

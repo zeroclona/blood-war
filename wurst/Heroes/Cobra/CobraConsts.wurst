@@ -94,9 +94,9 @@ public class Cobra
     static StringLevelClosure tooltipTurnOffExtended       = lvl -> "выключить бульбуль"
 
     static RealLevelClosure healthloss      = lvl -> 50. + 25. * (lvl-1)
-    static RealLevelClosure managain        = lvl -> 60. + 35. * (lvl-1)
+    static RealLevelClosure managain        = lvl -> 5./*60.*/ + 35. * (lvl-1)
     static let gainperiod                   = 0.8
-
+    static let healthtocancel               = 110.
 
     static RealLevelClosure cooldown        = lvl -> 0.
     static IntLevelClosure manacost         = lvl -> 0

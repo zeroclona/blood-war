@@ -1,5 +1,5 @@
 package BloodWarOverall
-
+import Sounds
 public let goodColor = "peach".toColor()
 public let badColor = "violet".toColor()
 public let playerCount = 8
@@ -12,3 +12,15 @@ public constant DAMAGE_EVENT_PRIO_RELATIVE    = 3 // Apply relative changes (mul
 public constant DAMAGE_EVENT_PRIO_ABSOLUTE    = 4 // Apply absolute changes (addition and subtraction)
 public constant DAMAGE_EVENT_PRIO_SHIELD      = 5 // Apply reduction from "shield" effects
 public constant DAMAGE_EVENT_PRIO_FINAL       = 6 // Final damage (won't be changed at this stage)
+
+public function msgError( player p, string s)
+  //sound m = CreateSoundFromLabel("InterfaceError", false, false, false, 10, 10)
+
+  if ( GetLocalPlayer() == p )
+    if ( s != "" ) and ( p != null )
+      ClearTextMessages()
+      //DisplayTimedTextToPlayer( ForPlayer, 0.52, -1.00, 2.00, "|cffffcc00"+msg+"|r" )
+      DisplayTimedTextToPlayer(p, 0., 0., 1.5, "\n\n\n\n                                                  |cffffcc00" + s + "|r\n\n\n\n\n\n\n\n\n\n\n\n")
+    PlaySound(Sounds.error)
+  //KillSoundWhenDone(m)
+  //m = null

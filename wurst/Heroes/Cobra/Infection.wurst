@@ -9,6 +9,7 @@ import ClosureForGroups
 import SoundUtils
 import LinkedList
 import Abilities
+constant isdebug = false
 class Infected
   unit source
   unit infectedunit
@@ -79,10 +80,12 @@ public class Infection extends Spell
     super(SpellIds.infect)
     s = new SoundDefinition(Cobra.Infection.impactsound, false)
     EventListener.onTargetCast(id) (source, target) ->
-      print(source.getName()+" casts an Infection")
+      if isdebug
+        print(source.getName()+" casts an Infection")
       let lvl = source.getAbilityLevel(id)
-      print(source.getAbilityLevel(id))
-      print(dmg.run(lvl, source.getSpellPower()))
+      if isdebug
+        print(source.getAbilityLevel(id))
+        print(dmg.run(lvl, source.getSpellPower()))
       new Infected(source, target, dmg.run(lvl, source.getSpellPower()))
 
 init

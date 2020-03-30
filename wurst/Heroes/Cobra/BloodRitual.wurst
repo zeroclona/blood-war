@@ -9,6 +9,7 @@ import CobraConsts
 import HashMap
 import SoundUtils
 import ClosureTimers
+import BloodWarOverall
 
 class Ritualed
   private static SoundDefinition impactSound
@@ -24,12 +25,14 @@ class Ritualed
       gainT = getTimer()
       gainT.startPeriodic(Cobra.BloodRitual.gainperiod) ->
         map.forEach() (u, th) ->
-          if u.getHP() > 110.
-            flashEffect(Cobra.BloodRitual.art, u, "chest")
-            impactSound.playOnPoint(u.getPos3Real())
+          if u.getHP() > Cobra.BloodRitual.healthtocancel
             let lvl = u.getAbilityLevel(SpellIds.bloodritual)
-            u.subHP(Cobra.BloodRitual.healthloss.run(lvl))
-            u.addMana(Cobra.BloodRitual.managain.run(lvl))
+            let addmana = Cobra.BloodRitual.managain.run(lvl)
+            if u.getMana() <= u.getMaxMana() - addmana
+              flashEffect(Cobra.BloodRitual.art, u, "chest")
+              impactSound.playOnPoint(u.getPos3Real())
+              u.subHP(Cobra.BloodRitual.healthloss.run(lvl))
+              u.addMana(addmana)
           else
             u.issueImmediateOrderById(Orders.unimmolation)
   ondestroy
@@ -43,10 +46,11 @@ public class BloodRitual extends Spell
       let caster = GetOrderedUnit()
       if caster.hasAbility(id)
         if GetIssuedOrderId() == Orders.immolation
-          if caster.getHP() > 110.
+          if caster.getHP() > Cobra.BloodRitual.healthtocancel
             new Ritualed(caster)
           else
             doAfter(0.01) ->
+              msgError(caster.getOwner(), "Недостаточно здоровья!")
             //add error msg (that unit is too low)
               caster.issueImmediateOrderById(Orders.unimmolation)
         else if GetIssuedOrderId() == Orders.unimmolation
