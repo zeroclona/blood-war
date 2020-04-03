@@ -30,10 +30,10 @@ package RecentDamage
             let source = DamageEvent.getSource()
 
             let sourcePlayer = source.getPlayerData()
-            let rdelement = map.get(HeroEntity.get(target))
+            let rdelement = map.get(HeroEntity.get(target))       //target is the same as vic above
             if rdelement != null
               rdelement.remainTimeList
-                ..remove(sourcePlayer)
+              ..remove(sourcePlayer)
               ..put(sourcePlayer, waitingTime)
 
               if checkTimer == null
@@ -41,15 +41,15 @@ package RecentDamage
                 ..startPeriodic(0.1) ->
                   timerToDestroy = true
                   map.forEach() (vic, RecentDamage value) ->
-                    value.remainTimeList.forEach() (source, time) ->
+                    value.remainTimeList.forEach() (sourcePl, time) ->
                       let newtime = time - 0.1
                       if newtime <= 0
-                        value.remainTimeList.remove(source)
+                        value.remainTimeList.remove(sourcePl)
                         if value.remainTimeList.size() != 0 and timerToDestroy
                           timerToDestroy = false
 
                       else
-                        value.remainTimeList.put(source, newtime)
+                        value.remainTimeList.put(sourcePl, newtime)
                         timerToDestroy = false
                   if timerToDestroy
                     checkTimer.release()
