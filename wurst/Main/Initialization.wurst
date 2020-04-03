@@ -19,18 +19,18 @@ init
   doAfter(0.0) ->
 
   doAfter(0.01) ->
-    initDemon()
-    VisBlockCoords.initialize()
-    initPlayerData()
-    HeroEntity.initialize()
-    //RecentDamage.initlialize()
-    //registerHeroDeaths() //////////INITLATER!!!!
-    startEntityLoop()
-    initShop()
-    initTeams() //// ????????
-    gameStartInit()
-    Influence.initInfluence()
-    initStatistics()
-    UpdTables.initialize()
+    // initDemon()
+    // VisBlockCoords.initialize()
+    // initPlayerData()
+    // HeroEntity.initialize()
+    // //RecentDamage.initlialize()
+    // //registerHeroDeaths() //////////INITLATER!!!!
+    // startEntityLoop()
+    // initShop()
+    // initTeams() //// ????????
+    // gameStartInit()
+    // Influence.initInfluence()
+    // initStatistics()
+    // UpdTables.initialize()
 
   doAfter(0.1) ->

@@ -1,0 +1,101 @@
+package OsyonConsts
+  // import Icons
+  // import Units
+  // import Abilities
+  // import Spell
+  // import Sounds
+  // import TargetsAllowed
+  // import ObjectIds
+  // import Objects
+
+  // constant STD_COLLISION_SIZE = 28.
+
+  // public class Osyon
+  //   static let name           = "Странник Сумрака"
+  //   static let propname1      = "Осион"
+  //   static let tooltipbasic   = "Осион, Странник Сумрака (|cffffcc00"+hotkey+"|r)"
+  //   static let tooltipext     = "Тактический саппорт. Сложен в освоении и обладает плохими характеристиками, но при идеальном позиционирования способен гарантировать союзникам победу в самых неблагоприятных ситуациях."
+  //   static let basemagicpower = 0
+  //   static let rangeornot     = 1
+  //   static let baseattack     = 29
+  //   static let attackrange    = 600
+  //   static let baseattacktime = 1.8
+  //   static let basephisarmor  = 1
+  //   static let basemagarmor   = 2
+  //   static let basehp         = 450
+  //   static let hpinc          = 27
+  //   static let basemp         = 740
+  //   static let mpinc          = 28
+  //   static let baseHPps       = 2.1
+  //   static let basemeditregen = 2.5
+  //   static let baseMPps       = 2.
+  //   static let basespeed      = 275
+  //   static let buttonX        = 3
+  //   static let buttonY        = 1
+  //   static let hotkey         = "С"
+  //   static let icon           = Icons.bTNPriest
+  //   static let scorescreenicon = Icons.bTNPriest
+  //   static let modelfile      = Units.priest1
+  //   static let colsize        = STD_COLLISION_SIZE
+  //   static let projart        = Abilities.dragonHawkMissile
+  //   static let projspeed      = 700
+  //   static let soundset       = "priest"
+  //   static let turnrate       = 2.
+  //   static let primattribute  = "Intelligence"
+  //   static let sightday       = 1800
+  //   static let sightnight     = 1000
+
+  //   static class RealDistortion
+  //     static let name                         = "Искажение Реальности"
+  //     static let hotkey                       = "Q"
+  //     static let hotkeyX                      = 0
+  //     static let hotkeyY                      = 2
+  //     static DamageLevelClosure damage        = (lvl, spd) -> 90. + 50. * (lvl-1) + 0.9 * spd
+  //     static IntLevelClosure manacost         = lvl -> 90 + (lvl * 30).toInt()
+  //     static RealLevelClosure cooldown        = lvl -> 20 - (lvl * 2)
+  //     static RealLevelClosure castrange       = lvl -> 300.
+  //     static StringLevelClosure targetallowed = (int lvl) -> commaList(TargetsAllowed.air, TargetsAllowed.ground, TargetsAllowed.enemies, TargetsAllowed.organic, TargetsAllowed.neutral)
+  //     static let dmgtype                      = DAMAGE_TYPE_MAGIC
+  //     static let icon                         = Icons.bTNpurpleDragonSpawn
+  //     static let impactsound                  = Sounds.artilleryCorpseExplodeDeath1
+  // //  static let lgtcolor                     = color(255, 255, 255)
+
+  //   static class EnrgRedirect
+  //     static let name                         = "Перенаправление Энергии"
+  //     static let hotkey                       = "E"
+  //     static let hotkeyX                      = 2
+  //     static let hotkeyY                      = 2
+  //     static DamageLevelClosure damage        = (lvl, spd) -> 30. + 18. * (lvl-1) + .6 * spd
+  //     static IntLevelClosure manacost         = lvl -> 4 - (lvl / 3).toInt()
+  //     static RealLevelClosure cooldown        = lvl -> 1.75 - (lvl / 4)
+  //     static RealLevelClosure castrange       = lvl -> 750.
+  //     static StringLevelClosure targetallowed = (int lvl) -> commaList(TargetsAllowed.air, TargetsAllowed.ground, TargetsAllowed.enemies, TargetsAllowed.organic, TargetsAllowed.neutral)
+  //     static let dmgtype                      = DAMAGE_TYPE_MAGIC
+  //     static let icon                         = Icons.pASBTNPlagueCloud
+  //     static let impactsound                  = Sounds.carrionSwarmDamage2
+  //     static let dmgeffect                    = Abilities.poisonArrowMissile
+  //     static let aoeeffect                    = Abilities.plagueCloudCaster
+
+  //   static class BloodRitual
+  //     static let name                         = "Ритуал крови"
+  //     static let hotkey                       = "R"
+  //     static let hotkeyX                      = 3
+  //     static let hotkeyY                      = 2
+  //     static let tooltipLearn                 = "Изучить Ритуал крови, [|cffffcc00Уровень %d|r] (|cffffcc00R|r)"
+  //     static let tooltipLearnExtended         = "изучишь - молодец"
+  //     static StringLevelClosure tooltipNormal                = lvl -> "Ритуал крови, [|cffffcc00Уровень "+lvl.toString()+"|r] (|cffffcc00R|r)"
+  //     static StringLevelClosure tooltipNormalExtended        = lvl -> "бульбуль"
+  //     static StringLevelClosure tooltipTurnOff               = lvl -> "Выключить Ритуал крови, [|cffffcc00Уровень "+lvl.toString()+"|r] (|cffffcc00R|r)"
+  //     static StringLevelClosure tooltipTurnOffExtended       = lvl -> "выключить бульбуль"
+
+  //     static RealLevelClosure healthloss      = lvl -> 50. + 25. * (lvl-1)
+  //     static RealLevelClosure managain        = lvl -> 5./*60.*/ + 35. * (lvl-1)
+  //     static let gainperiod                   = 0.8
+  //     static let healthtocancel               = 110.
+
+  //     static RealLevelClosure cooldown        = lvl -> 0.
+  //     static IntLevelClosure manacost         = lvl -> 0
+  //     static StringLevelClosure targetallowed = lvl -> TargetsAllowed.none
+  //     static let icon                         = Icons.bTNSacrifice
+  //     static let impactsound                  = Sounds.carrionSwarmDamage2
+  //     static let art                          = Objects.battrollBlood

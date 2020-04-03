@@ -5,3 +5,4 @@ public class HeroIds
   static let joyce = compiletime(HERO_ID_GEN.next())
   static let example = compiletime(HERO_ID_GEN.next())
   static let cobra = compiletime(HERO_ID_GEN.next())
+  static let osyon = compiletime(HERO_ID_GEN.next())
