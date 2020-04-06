@@ -55,6 +55,7 @@ init
   CreateUnit(Player(3), JOYCE_ID, 400, 0, 228.600)
   ..addAbility(SPELL_ID)
   CreateUnit(players[0], HeroIds.example, 0, 0, 0)
+  CreateUnit(players[5], JOYCE_ID, 0, 0, 228.600)
   ..addInt(1000)
   ..setLevel(10, false)
   //CreateUnit(Player(4), JOYCE_ID, -400, 0, 228.600)

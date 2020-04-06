@@ -9,11 +9,13 @@ package RecentDamage
   import DamageEvent
 
 
+  let recentdamage_waitingperiod = 10.
+
   class RecentDamage
     static let map = new IterableMap<HeroEntity, thistype>
     HeroEntity victim
     IterableMap<PlayerData, real> remainTimeList         // <attacker, time>
-    static let waitingTime = 10.
+    static let waitingTime = recentdamage_waitingperiod
     static timer checkTimer
     static bool timerToDestroy
 
@@ -56,25 +58,28 @@ package RecentDamage
                     checkTimer = null
 
     static function attackers(HeroEntity vic) returns LinkedList<PlayerData>
-      if map.get(vic).remainTimeList == null
-        return null
-      if map.get(vic).remainTimeList.size() == 0
-        return null
       let outputList = new LinkedList<PlayerData>
-      for pd in map.get(vic).remainTimeList
-        outputList.add(pd)
+      if map.get(vic).remainTimeList != null
+        for pd in map.get(vic).remainTimeList
+          outputList.add(pd)
       return outputList
 
+    static function attackers(HeroEntity vic, LinkedListPredicate<PlayerData> filter) returns LinkedList<PlayerData>
+      let outputList = new LinkedList<PlayerData>
+      if map.get(vic).remainTimeList != null
+        for pd in map.get(vic).remainTimeList
+          outputList.add(pd)
+        outputList.removeIf(filter)
+      return outputList
 
     static function isHeroDamaged(HeroEntity he) returns bool
-      if map.has(he)
+      if map.get(he).remainTimeList != null
         if map.get(he).remainTimeList.size() > 0
           return true
       return false//DamageTaking.timerList.get(he) != null
 
     static function attackersLevel(HeroEntity victim) returns int
-      let attackers = RecentDamage.attackers(victim)
-      attackers.removeIf( (t) -> t.p.isAllyOf(victim.owner ) )
+      let attackers = RecentDamage.attackers(victim, (t) -> t.p.isAllyOf(victim.owner ))
       int toplevel = 1
       for a in attackers
         let lvl = a.mainhero.actor.getLevel()

@@ -6,16 +6,33 @@ import ClosureEvents
 import TimerUtils
 import LinkedList
 import PlayerData
-import DamageEvent
 import RecentDamage
 import Statistics
-import ErrorHandling
+import TeamData
+import Demon
+
+let death_time = 15.
+let death_messageDuration = 10.
+
+function deathFromDemonMsg(PlayerData victim) returns string
+  return victim.name() + " аннигилирован "+"Демоном".toDemonColorString()
+
+function deathFromNeutralMsg(PlayerData victim) returns string
+  return victim.name() + " растерзан монстрами"
+
+function deathFromEnemyMsg(PlayerData victim, PlayerData killer, int reward, LinkedList<PlayerData> attackers) returns string
+  return attackers.size() > 1 ? killer.name()+" убил "+victim.name()+". Каждый нападающий получил "+COLOR_GOLD.toColorString()+(reward).toString()+"|r золота" : killer.name()+" убил "+victim.name()+" и получил за это "+COLOR_GOLD.toColorString()+(reward).toString()+"|r золота"
+
+function deathFromTeammatesMsg(PlayerData killer, PlayerData victim) returns string
+  return killer.name() + " окончил страдания "+ victim.name()
+
+function deathFromHimselfMsg(PlayerData victim) returns string
+  return victim.name() + " совершил самоубийство!"
 
 function calcHeroKillReward(HeroEntity victim) returns int
-
-  real reward = 100 + (victim.actor.getLevel() * 25) - (RecentDamage.attackersLevel(victim) * 15) + (currentTime/10) - (0/* deathcount*10 */)
+  var reward = 100. + (victim.actor.getLevel() * 25) - (RecentDamage.attackersLevel(victim) * 15) + (currentTime/10) - (0/* deathcount*10 */)
   print("victim level "+victim.actor.getLevel().toString()+" attackers level "+RecentDamage.attackersLevel(victim).toString())
-  switch RecentDamage.attackers(victim).size()
+  switch RecentDamage.attackers(victim,t -> not t.p.isEnemyOf(victim.owner)).size()
     case 1
       print("один")
       reward *= (1+(.25))
@@ -29,29 +46,51 @@ function calcHeroKillReward(HeroEntity victim) returns int
       reward *= (1+(-.30))
     default
       reward *= 1
+  print("post calculation reward "+reward.toString())
+  return (reward + (reward >= 0?.5:-.5)).toInt()
+
+function calcHeroNeutralDeathCost(HeroEntity victim) returns int
+  let reward = (100. + (victim.actor.getLevel() * 25) + (currentTime/10)) / 2 - (0/* deathcount*10 */)
   //print("post calculation reward "+reward.toString())
   return (reward + (reward >= 0?.5:-.5)).toInt()
 
-
 public function onHeroDeath(HeroEntity he, unit killer)
-  let attackers = RecentDamage.attackers(he)
-  let reward = calcHeroKillReward(he)
-  for a in attackers
-    print("Before: "+a.p.getGold().toString())
-    a.addGold(reward)
-    print("After: "+a.p.getGold().toString())
-  he.ownerData.subGold(reward)
+  string outstr = ""
+  if he.owner.isEnemyOf(killer.getOwner())
+    if killer.getOwner() == demon_Player
+      //укушен демоном
+      outstr = deathFromDemonMsg(he.ownerData)
 
-  let outstr = attackers.size() > 1 ? killer.getPlayerData().name()+" убил "+he.ownerData.name()+". Каждый нападающий получил "+(reward).toString()+" золота" : killer.getPlayerData().name()+" убил "+he.ownerData.name()+" и получил за это "+(reward).toString()+" золота"
-  printTimed(outstr, 10.)
+    else if killer.getPlayerData().team == neutral
+      //нейтралы
+      let penalty = calcHeroNeutralDeathCost(he)
+      he.ownerData.subGold(penalty)
+      outstr = deathFromNeutralMsg(he.ownerData)
 
-  he.revive(15.)
+    else
+      //смерть от игрока-противника
+      let attackers = RecentDamage.attackers(he, t -> not t.p.isEnemyOf(he.owner))
+      let reward = calcHeroKillReward(he)
+      for a in attackers
+        a.addGold(reward)
+      he.ownerData.subGold(reward)
 
-  PersonalStats.addKill(killer.getPlayerData())
+      outstr = deathFromEnemyMsg(he.ownerData, killer.getPlayerData(), reward, attackers)
+
+      PersonalStats.addKill(killer.getPlayerData())
+
+  else if he.owner.isAllyOf(killer.getOwner()) and he.owner != killer.getOwner()
+    //смерть от руки союзника
+    outstr = deathFromTeammatesMsg(killer.getPlayerData(), he.ownerData)
+
+  else if he.owner == killer.getOwner()
+    //смерть от своей руки
+    outstr = deathFromHimselfMsg(he.ownerData)
+
+  printTimed(outstr, death_messageDuration)
+  he.revive(death_time)
+
   PersonalStats.addDeath(he.ownerData)
-
-  RecentDamage.map.get(he).remainTimeList.forEach() (PlayerData pd, real value) ->
-    print("Attacker "+pd.p.getName()+" i ego time "+value.toString())
 
 public function registerHeroDeaths()
   EventListener.add(EVENT_PLAYER_UNIT_DEATH) ->

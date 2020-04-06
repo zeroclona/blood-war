@@ -54,7 +54,7 @@ public class PlayerData
     return herolist
 
   private function initName()   //? улучшить поиск цветных кодов (|cxxxxxx...) (хорспул?)
-    name = p.getName()
+    name = p.getNameColored()
 
   function addToTeam(TeamData td)
     team = td
