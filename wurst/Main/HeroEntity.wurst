@@ -8,12 +8,14 @@ import ClosureForGroups
 import OnUnitEnterLeave
 import initlater KillingHeroEntity
 
+public interface DeathCallback
+  abstract function run(HeroEntity he, unit killer)
+
 public class Attribute
   private real value
 
   construct()
     value = 0
-
   function add(real val)
     value += val
 
@@ -34,10 +36,11 @@ public class AttributeList
   construct(real sppower, real sparmor)
     spellpower = new Attribute()
     spellarmor = new Attribute()
+    setAttributes(sppower, sparmor)
 
   function setAttributes(real sppower, real sparmor)
     spellpower.setv(sppower)
-    spellpower.setv(sparmor)
+    spellarmor.setv(sparmor)
 
 public class Unit2Entity extends UnitEntity
   AttributeList attlist
@@ -51,12 +54,13 @@ public class Unit2Entity extends UnitEntity
 public class HeroEntity extends Unit2Entity
   static let list = new IterableMap<unit,thistype>
   PlayerData ownerData
-  bool legitimus = true
+  //bool legitimus = true //dont need it anymore i guess
   timer respTimer
   bool isMain = false
+
   // private string icon
   //? abilities
-
+  DeathCallback onDeathActions = (victim, killer) -> onHeroDeath(victim, killer)
 //  function DeathCost() returns real
 // 	function RespTime() returns real
 // 	function Revive()
@@ -67,11 +71,11 @@ public class HeroEntity extends Unit2Entity
     ownerData = u.getPlayerData()
     list.put(u,this)
 
-  construct(unit u, bool isLegit)
-    super(u)
-    ownerData = u.getPlayerData()
-    list.put(u,this)
-    legitimus = isLegit
+  // construct(unit u, bool isLegit)
+  //   super(u)
+  //   ownerData = u.getPlayerData()
+  //   list.put(u,this)
+  //   legitimus = isLegit
 
   // function setIcon()
   //   icon = HeroIds.getIcon(actor.getTypeId())

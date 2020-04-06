@@ -56,12 +56,13 @@ package RecentDamage
                     checkTimer = null
 
     static function attackers(HeroEntity vic) returns LinkedList<PlayerData>
-      var outputList = new LinkedList<PlayerData>
+      if map.get(vic).remainTimeList == null
+        return null
+      if map.get(vic).remainTimeList.size() == 0
+        return null
+      let outputList = new LinkedList<PlayerData>
       for pd in map.get(vic).remainTimeList
         outputList.add(pd)
-      if outputList.size() == 0
-        destroy outputList
-        return null
       return outputList
 
 
@@ -73,9 +74,12 @@ package RecentDamage
 
     static function attackersLevel(HeroEntity victim) returns int
       let attackers = RecentDamage.attackers(victim)
-      //attackers.removeIf( (t) -> t.actor.isAllyOf(victim.actor) )
+      attackers.removeIf( (t) -> t.p.isAllyOf(victim.owner ) )
       int toplevel = 1
       for a in attackers
+        let lvl = a.mainhero.actor.getLevel()
+        if lvl > toplevel
+          toplevel = lvl
         //var lvl = a.actor.getLevel()
         //if lvl > toplevel
         //  toplevel = lvl
