@@ -69,8 +69,8 @@ function onHeroPick(HeroEntity he)
 
 function registerFuncs()
   EventListener.add(EVENT_PLAYER_UNIT_SELL) ->
-    var selling = GetSellingUnit()
-    var sold = GetSoldUnit()
+    let selling = GetSellingUnit()
+    let sold = GetSoldUnit()
     print(sold.getOwner().getName()+" выбрал "+sold.getName())
 
     var p = sold.getPlayerData()

@@ -1,0 +1,61 @@
+package BloodRitual
+
+import Spell
+import SpellIds
+import ClosureEvents
+import Orders
+import TimerUtils
+import CobraConsts
+import HashMap
+import SoundUtils
+import ClosureTimers
+import BloodWarOverall
+
+class Ritualed
+  private static SoundDefinition impactSound
+  static let map = new IterableMap<unit, thistype>
+  unit who
+  private static timer gainT
+
+  construct(unit s)
+    who = s
+    map.put(s, this)
+    if gainT == null
+      impactSound = new SoundDefinition(Cobra.BloodRitual.impactsound, false)
+      gainT = getTimer()
+      gainT.startPeriodic(Cobra.BloodRitual.gainperiod) ->
+        map.forEach() (u, th) ->
+          if u.getHP() > Cobra.BloodRitual.healthtocancel
+            let lvl = u.getAbilityLevel(SpellIds.bloodritual)
+            let addmana = Cobra.BloodRitual.managain.run(lvl)
+            if u.getMana() <= u.getMaxMana() - addmana
+              flashEffect(Cobra.BloodRitual.art, u, "chest")
+              impactSound.playOnPoint(u.getPos3Real())
+              u.subHP(Cobra.BloodRitual.healthloss.run(lvl))
+              u.addMana(addmana)
+          else
+            u.issueImmediateOrderById(Orders.unimmolation)
+  ondestroy
+    map.remove(who)
+
+public class BloodRitual extends Spell
+
+  construct()
+    super(SpellIds.bloodritual)
+    EventListener.add(EVENT_PLAYER_UNIT_ISSUED_ORDER) ->
+      let caster = GetOrderedUnit()
+      if caster.hasAbility(id)
+        if GetIssuedOrderId() == Orders.immolation
+          if caster.getHP() > Cobra.BloodRitual.healthtocancel
+            new Ritualed(caster)
+          else
+            doAfter(0.01) ->
+              msgError(caster.getOwner(), "Недостаточно здоровья!")
+            //add error msg (that unit is too low)
+              caster.issueImmediateOrderById(Orders.unimmolation)
+        else if GetIssuedOrderId() == Orders.unimmolation
+          if Ritualed.map.has(caster)
+            destroy Ritualed.map.get(caster)
+
+init
+  new BloodRitual()

@@ -47,7 +47,7 @@ init
   Cheat("iseedeadpeople")
   var g = CreateGroup()
     ..enumUnitsOfPlayer(Player(0), null)
-  CreateUnit(Player(0), JOYCE_ID, 3000, -1000, 228.600)
+  CreateUnit(Player(0), JOYCE_ID, 4100, - 2624.0, 228.600)
   ..setLevel(10, false)
   CreateUnit(Player(2), JOYCE_ID, 0, 400, 228.600)
   CreateUnit(Player(1), JOYCE_ID, 0, -400, 228.600)
@@ -55,10 +55,12 @@ init
   CreateUnit(Player(3), JOYCE_ID, 400, 0, 228.600)
   ..addAbility(SPELL_ID)
   CreateUnit(players[0], HeroIds.example, 0, 0, 0)
+  CreateUnit(players[5], JOYCE_ID, 0, 0, 228.600)
   ..addInt(1000)
   ..setLevel(10, false)
   //CreateUnit(Player(4), JOYCE_ID, -400, 0, 228.600)
-
+  for i = 0 to 25
+    CreateUnit(players[5], 'ogru', 0, -2000, 0)
   for u from g
     UnitAddAbility(u, SPELL_ID)
   /*for i = 1 to 20

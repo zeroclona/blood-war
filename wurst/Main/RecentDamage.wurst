@@ -1,91 +1,95 @@
 package RecentDamage
+  import BloodWarOverall
+  import HeroEntity
+  import HashMap
+  import LinkedList
+  import TimerUtils
+  import PlayerData
 
-import HeroEntity
-import HashMap
-import LinkedList
-import TimerUtils
-import PlayerData
-
-import DamageEvent
-
-
-class RecentDamage
-  static let map = new IterableMap<HeroEntity, thistype>
-  HeroEntity victim
-  IterableMap<HeroEntity, real> remainTimeList         // <attacker, time>
-  static let waitingTime = 10.
-  static timer checkTimer
-  static bool timerToDestroy
+  import DamageEvent
 
 
-  construct(HeroEntity vic)
-    if not map.has(vic)
-      victim = vic
-      remainTimeList = new IterableMap<HeroEntity, real>
-      map.put(vic, this)
-      DamageEvent.addListener(5) ->
-        if DamageEvent.getTarget() == vic.actor and DamageEvent.getAmount() > 0
-          let source = HeroEntity.list.get(DamageEvent.getSource())
-          var t = map.get(vic).remainTimeList
-          t.remove(source)
-          t.put(source, waitingTime)
+  let recentdamage_waitingperiod = 10.
 
-          if checkTimer == null
-            checkTimer = getTimer()
-            ..startPeriodic(0.1) ->
-              timerToDestroy = true
-              map.forEach() (vic, RecentDamage value) ->
-                value.remainTimeList.forEach() (source, time) ->
-                  let newtime = time - 0.1
-                  if newtime <= 0
-                    value.remainTimeList.remove(source)
-                    if value.remainTimeList.size() != 0 and timerToDestroy
-                      timerToDestroy = false
-
-                  else
-                    value.remainTimeList.put(source, newtime)
-                    timerToDestroy = false
-              if timerToDestroy
-                checkTimer.release()
-                checkTimer = null
-
-  static function attackers(HeroEntity vic) returns LinkedList<HeroEntity>
-    var outputList = new LinkedList<HeroEntity>
-    for he in map.get(vic).remainTimeList
-      outputList.add(he)
-    if outputList.size() == 0
-      destroy outputList
-      return null
-    return outputList
+  class RecentDamage
+    static let map = new IterableMap<HeroEntity, thistype>
+    HeroEntity victim
+    IterableMap<PlayerData, real> remainTimeList         // <attacker, time>
+    static let waitingTime = recentdamage_waitingperiod
+    static timer checkTimer
+    static bool timerToDestroy
 
 
-  static function isHeroDamaged(HeroEntity he) returns bool
-    if map.has(he)
-      if map.get(he).remainTimeList.size() > 0
-        return true
-    return false//DamageTaking.timerList.get(he) != null
+    construct(HeroEntity vic)
+      if not map.has(vic)
+        victim = vic
+        remainTimeList = new IterableMap<PlayerData, real>
+        map.put(vic, this)
 
+        DamageEvent.addListener(DAMAGE_EVENT_PRIO_FINAL) ->
+          if DamageEvent.getAmount() > 0
+            let target = DamageEvent.getTarget()
+            let source = DamageEvent.getSource()
 
-  static function attackerPlayers(HeroEntity victim) returns LinkedList<PlayerData>
-    let attackers = attackers(victim)
-    attackers.removeIf( (t) -> t.actor.isAllyOf(victim.actor) )
-    let attackerPlayers = new LinkedList<PlayerData>
-    for d in attackers
-      if not attackerPlayers.has(d.ownerData)
-        attackerPlayers.add(d.ownerData)
-    destroy attackers
-    return attackerPlayers
+            let sourcePlayer = source.getPlayerData()
+            let rdelement = map.get(HeroEntity.get(target))       //target is the same as vic above
+            if rdelement != null
+              rdelement.remainTimeList
+              ..remove(sourcePlayer)
+              ..put(sourcePlayer, waitingTime)
 
-  static function attackersLevel(HeroEntity victim) returns int
-    let attackers = RecentDamage.attackers(victim)
-    //attackers.removeIf( (t) -> t.actor.isAllyOf(victim.actor) )
-    int toplevel = 1
-    for a in attackers
-      var lvl = a.actor.getLevel()
-      if lvl > toplevel
-        toplevel = lvl
-    return toplevel
+              if checkTimer == null
+                checkTimer = getTimer()
+                ..startPeriodic(0.1) ->
+                  timerToDestroy = true
+                  map.forEach() (vic, RecentDamage value) ->
+                    value.remainTimeList.forEach() (sourcePl, time) ->
+                      let newtime = time - 0.1
+                      if newtime <= 0
+                        value.remainTimeList.remove(sourcePl)
+                        if value.remainTimeList.size() != 0 and timerToDestroy
+                          timerToDestroy = false
 
-  static function initlialize()
-    for u in HeroEntity.list
-      new RecentDamage(HeroEntity.list.get(u))
+                      else
+                        value.remainTimeList.put(sourcePl, newtime)
+                        timerToDestroy = false
+                  if timerToDestroy
+                    checkTimer.release()
+                    checkTimer = null
+
+    static function attackers(HeroEntity vic) returns LinkedList<PlayerData>
+      let outputList = new LinkedList<PlayerData>
+      if map.get(vic).remainTimeList != null
+        for pd in map.get(vic).remainTimeList
+          outputList.add(pd)
+      return outputList
+
+    static function attackers(HeroEntity vic, LinkedListPredicate<PlayerData> filter) returns LinkedList<PlayerData>
+      let outputList = new LinkedList<PlayerData>
+      if map.get(vic).remainTimeList != null
+        for pd in map.get(vic).remainTimeList
+          outputList.add(pd)
+        outputList.removeIf(filter)
+      return outputList
+
+    static function isHeroDamaged(HeroEntity he) returns bool
+      if map.get(he).remainTimeList != null
+        if map.get(he).remainTimeList.size() > 0
+          return true
+      return false//DamageTaking.timerList.get(he) != null
+
+    static function attackersLevel(HeroEntity victim) returns int
+      let attackers = RecentDamage.attackers(victim, (t) -> t.p.isAllyOf(victim.owner ))
+      int toplevel = 1
+      for a in attackers
+        let lvl = a.mainhero.actor.getLevel()
+        if lvl > toplevel
+          toplevel = lvl
+        //var lvl = a.actor.getLevel()
+        //if lvl > toplevel
+        //  toplevel = lvl
+      return toplevel
+
+    static function initlialize()
+      for u in HeroEntity.list
+        new RecentDamage(HeroEntity.list.get(u))

@@ -2,38 +2,47 @@ package Spell
 import public ObjEditingNatives
 import LinkedList
 import DamageEvent
-import ClosureEvents
 
 public interface DamageFilterClosure
   function check(unit source, unit target) returns bool
 
-public constant DamageFilterClosure STD_DFC_CLOSURE = (s, t) -> t.isAlive() and s.isEnemyOf(t) and not t.isType(UNIT_TYPE_STRUCTURE) and not t.isType(UNIT_TYPE_MAGIC_IMMUNE)
+public constant DamageFilterClosure STD_DFC_CLOSURE = (s, t) -> t.isAlive() and s.isEnemyOf(t) and not t.isType(UNIT_TYPE_STRUCTURE) and not t.isType(UNIT_TYPE_MAGIC_IMMUNE) and not t.hasAbility('Aloc')
 
 public interface DamageLevelClosure
   function run(int lvl, real spellpower) returns real
-/**
-abstract function onSpellEffect(unit caster)
 
-abstract function onSpellEffect(unit caster, unit target)
 
-abstract function onSpellEffect(unit caster, vec2 pos)
-*/
 
-public function stdEnemyFilter() returns bool
-  return GetFilterUnit().isAlive() and not GetFilterUnit().isType(UNIT_TYPE_MAGIC_IMMUNE) and not GetFilterUnit().isType(UNIT_TYPE_STRUCTURE)
+
+public function stdTargetCheck(unit u) returns bool
+  return u.isAlive() and not u.isType(UNIT_TYPE_MAGIC_IMMUNE) and not u.isType(UNIT_TYPE_STRUCTURE) and not u.hasAbility('Aloc')
+
+public function stdTargetFilter() returns bool
+  return stdTargetCheck(GetFilterUnit())
+
+public function stdEnemyTargetCheck(unit toWhom, unit t) returns bool
+  return t.isEnemyOf(toWhom) and stdTargetCheck(t)
+
+public function stdAllyTargetCheck(unit toWhom, unit t) returns bool
+  return t.isAllyOf(toWhom) and stdTargetCheck(t)
 
 public abstract class Spell
   static let list = new LinkedList<Spell>
-  protected unit source
   protected int id
 
-  construct(unit s, int newid)
-    source = s
+  construct(int newid)
     id = newid
     list.add(this)
 
-  function damageTarget(unit target, real dmgamount, damagetype dmgtype, DamageFilterClosure dfc)
-    if dfc.check(source, target)
-      DamageEvent.setNextDamageFromCode()
-      DamageEvent.setNextDamageId(this.id)
-      source.damageTarget(target, dmgamount, true, false, ATTACK_TYPE_MAGIC, dmgtype, WEAPON_TYPE_WHOKNOWS)
+
+  function damageTarget(unit source, unit target, real dmgamount, damagetype dmgtype/*, DamageFilterClosure dfc*/)
+    //if dfc.check(source, target)
+    DamageEvent.setNextDamageFromCode()
+    DamageEvent.setNextDamageId(id)
+    source.damageTarget(target, dmgamount, true, false, ATTACK_TYPE_MAGIC, dmgtype, WEAPON_TYPE_WHOKNOWS)
+
+  static function damageTarget(int id, unit source, unit target, real dmgamount, damagetype dmgtype/*, DamageFilterClosure dfc*/)
+    //if dfc.check(source, target)
+    DamageEvent.setNextDamageFromCode()
+    DamageEvent.setNextDamageId(id)
+    source.damageTarget(target, dmgamount, true, false, ATTACK_TYPE_MAGIC, dmgtype, WEAPON_TYPE_WHOKNOWS)

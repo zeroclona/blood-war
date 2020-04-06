@@ -1,0 +1,95 @@
+package Infection
+import Spell
+import SpellIds
+import CobraConsts
+import HeroEntity
+import ClosureEvents
+import ClosureTimers
+import ClosureForGroups
+import SoundUtils
+import LinkedList
+import Abilities
+constant isdebug = false
+class Infected
+  unit source
+  unit infectedunit
+  real damage
+  private bool isAlone
+  private var direction = 1
+  private var list = new LinkedList<effect>
+  private var aaa = 0
+  private bool killedonce = false
+
+  private function damageTarget(unit target)
+    let dmg = isAlone and target == infectedunit ? damage/2 : damage    //half of dmg if solotarget
+    Infection.damageTarget(SpellIds.infect, source, target, dmg, Cobra.Infection.dmgtype)
+    flashEffect(Cobra.Infection.dmgeffect, target, "origin")
+
+  ondestroy
+    /*list.forEach() (effect t) ->
+      t..destr()*/
+
+  construct(unit s, unit t, real dps)
+    source = s
+    infectedunit = t
+    damage = dps * 0.5    // dps * damageperiod
+    Infection.s.playOnPoint(t.getPos3Real(), 10)
+
+    doPeriodicallyTimed(0.5, 5.) (CallbackCounted cb) ->
+      isAlone = true
+      forUnitsInRange(infectedunit.getPos(), 250.) (unit u) ->
+        if stdEnemyTargetCheck(source, u) and u!=infectedunit
+          damageTarget(u)
+          isAlone = false
+      damageTarget(infectedunit)
+      if cb.isLast()
+        destroy this
+
+    for int i = 0 to 8
+      list.add(addEffect(Abilities.sleepSpecialArt, infectedunit.getPos()+vec2(250.*Cos(PI2*i/8), 250.*Sin(PI2*i/8))))
+    doPeriodicallyTimed(0.025, 5.) (CallbackCounted cb) ->
+      aaa = 0
+      list.forEach() (effect t) ->
+        t.setPos(infectedunit.getPos()+vec2(250.*Cos(PI2*aaa/8), 250.*Sin(PI2*aaa/8)))
+        aaa+=1
+      if cb.getCount() > 5/0.025 * 0.25
+        if not killedonce
+          list.forEach() (effect t) ->
+            t..destr()
+        else
+          killedonce = true
+
+    doPeriodicallyTimed(0.100, 5.) (CallbackCounted cb) ->
+      direction++
+      if direction > 3
+        direction = 1
+      let r = GetRandomReal(20., 250.)
+      var a = (PI2/3)*direction
+      a = GetRandomReal(a, a+PI2/3)
+      effect eff = addEffect(Cobra.Infection.aoeeffect, infectedunit.getPos()+vec2(r*Cos(a), r*Sin(a)))
+      doAfter(0.25) ->
+        eff.destr()
+
+
+
+public class Infection extends Spell
+  static SoundDefinition s
+  static let dmg = Cobra.Infection.damage
+
+  construct()
+    super(SpellIds.infect)
+    s = new SoundDefinition(Cobra.Infection.impactsound, false)
+    EventListener.onTargetCast(id) (source, target) ->
+      if isdebug
+        print(source.getName()+" casts an Infection")
+      let lvl = source.getAbilityLevel(id)
+      if isdebug
+        print(source.getAbilityLevel(id))
+        print(dmg.run(lvl, source.getSpellPower()))
+      new Infected(source, target, dmg.run(lvl, source.getSpellPower()))
+
+init
+  new Infection()
+
+
+@test function testforgroups()

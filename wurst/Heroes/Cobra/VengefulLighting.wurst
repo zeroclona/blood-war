@@ -1,0 +1,75 @@
+package VengefulLighting
+
+
+import CobraConsts
+import SpellIds
+import Spell
+import SoundUtils
+import HeroEntity
+import ClosureEvents
+import ClosureTimers
+constant isdebug = false
+
+class LightningEffect
+  private lightning lgt
+  private unit first
+  private unit second
+
+  construct(unit f, unit s)
+    first = f
+    second = s
+    lgt = addLightning(LIGHTNING_FINGER_OF_DEATH, false, first.getPos3Fly(), second.getPos3Fly())
+    ..setColor(Cobra.VengefulLgt.lgtcolor)
+    doPeriodicallyTimed(Cobra.VengefulLgt.lgtmoveperiod, Cobra.VengefulLgt.lgtmovetime) cb ->
+      lgt.move(false, first.getPos3Real(), second.getPos3Real())
+      if cb.isLast()
+        destroy this
+
+  ondestroy
+    lgt.destr()
+
+public class VengefulLightning extends Spell
+  static let dmg = Cobra.VengefulLgt.damage
+  static let enemycount = Cobra.VengefulLgt.addenemycount
+  static let enemyradius = Cobra.VengefulLgt.enemytakeradius
+  static SoundDefinition s
+  static unit filterunit
+
+  construct()
+    super(SpellIds.vengefullightning)
+    s = new SoundDefinition(Cobra.VengefulLgt.impactsound, false)
+    EventListener.onTargetCast(id) (source, target) ->
+      if isdebug
+        print(source.getName()+" casts an Vengeful Lightning")
+      let lvl = source.getAbilityLevel(id)
+      let damage = dmg.run(lvl, source.getSpellPower())
+      var g = CreateGroup()..enumUnitsInRange(target.getPos(), enemyradius.run(lvl), null)..removeUnit(target)
+
+      impact(source, target, damage)
+      for int i = 0 to enemycount.run(lvl)
+        var maxdist = REAL_MAX
+        unit nearest = null
+        for unit u in g
+          if stdEnemyTargetCheck(source, u)
+            let distSq = target.getPos().distanceToSq(u.getPos())
+            if distSq < maxdist
+              nearest = u
+              maxdist = distSq
+          else
+            g.removeUnit(u)
+        g.removeUnit(nearest)
+        if nearest != null
+          impact(source, nearest, damage)
+        else
+          break
+      g.destr()
+
+  function impact(unit source, unit target, real damage) // source, target, damage
+    if isdebug
+      print(damage)
+    damageTarget(source, target, damage, Cobra.VengefulLgt.dmgtype)
+    s.playOnPoint(target.getPos3Real(), 1)
+    new LightningEffect(source, target)
+
+init
+  new VengefulLightning()

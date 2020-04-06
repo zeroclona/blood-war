@@ -21,7 +21,7 @@ let spawn_DOWN = vec2(0, -3200)
 let spawn_GOOD = vec2(-1792, 2176)
 let spawn_BAD  = vec2(1792, 2176)
 
-let demon_Player = players[12]  //13й
+public let demon_Player = players[12]  //13й
 let DEMON_ID   = compiletime(UNIT_ID_GEN.next())
 
 let alertTime = 30.            // Время за которое предупреждают о появлении демона (если оно больше этого времени, очевидно)
@@ -37,7 +37,7 @@ let incDemonHP = 1000
 public function string.toDemonColorString() returns string
   return "|cff830101"+this+"|r"
 
-class onDamageHint
+class OnDamageHint
   var pllist = new LinkedList<player>
 
   function call(player p)
@@ -61,7 +61,7 @@ public class Demon
   private static var badDmg = 0.
   static var demonCount = 0
   static blockpos side
-  static onDamageHint odh = new onDamageHint()
+  static OnDamageHint odh = new OnDamageHint()
 
 
   static function getSpawnPos()
@@ -113,7 +113,7 @@ public class Demon
         if attacker.getPlayerData().team == goodies
           goodDmg+=dmg
       attacker.setHP(attacker.getHP()+dmg*vampFactor)
-      var eff = attacker.addEffect(Abilities.healTarget, "origin")
+      let eff = attacker.addEffect(Abilities.healTarget, "origin")
       attacker.addInfluence(dmg*3/victim.getMaxHP()*100)
       doAfter(0.35) () ->
         eff.destr()
