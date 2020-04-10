@@ -24,12 +24,12 @@ init
     initPlayerData()
     HeroEntity.initialize()
     RecentDamage.initlialize()
-    registerHeroDeaths() //////////INITLATER!!!!
+    initHeroDeaths() //////////INITLATER!!!!
     startEntityLoop()
-    initShop()
-    initTeams() //// ????????
-    gameStartInit()
-    Influence.initInfluence()
+    initShop()  //// в init game надо
+    initTeams() //// ???????? не нужно
+    gameStartInit() //// в init game надо
+    Influence.initInfluence()//// в init game надо
     initStatistics()
     UpdTables.initialize()
 

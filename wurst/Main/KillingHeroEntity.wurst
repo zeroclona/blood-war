@@ -92,13 +92,17 @@ public function onHeroDeath(HeroEntity he, unit killer)
 
   PersonalStats.addDeath(he.ownerData)
 
-public function registerHeroDeaths()
+function registerHeroDeaths()
   EventListener.add(EVENT_PLAYER_UNIT_DEATH) ->
     //var tobreak = false
     if IsUnitType(GetDyingUnit(), UNIT_TYPE_HERO)
       let hero = GetDyingUnit().getHeroEntity()
       if hero != null
         hero.onDeathActions.run(hero, GetKillingUnit())
+
+public function initHeroDeaths()
+  registerHeroDeaths()
+
       /*for pd in PlayerData.list
         //run actions(onHeroDeath()) if that's mainhero and break this cycle
         if GetDyingUnit() == pd.mainhero.actor
