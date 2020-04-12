@@ -38,7 +38,7 @@ function devRegisterChatStrings()
     let str = GetEventPlayerChatString()
     let p = GetTriggerPlayer()
     let firstsymbol = str.substring(0, 1)
-    if firstsymbol == "-" or firstsymbol == "/"
+    if firstsymbol == "-" or firstsymbol == "/" or firstsymbol == "_"
       switch str.substring(1)
         case "addblink"
           EnumUnitsSelected(p, null) ->
@@ -96,7 +96,9 @@ function devRegisterChatStrings()
 
         default
 
-
+init
+  if enabledeveloper
+    devRegisterChatStrings()
 
 
 @compiletime function genObj()

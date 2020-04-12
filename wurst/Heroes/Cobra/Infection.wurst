@@ -9,7 +9,9 @@ import ClosureForGroups
 import SoundUtils
 import LinkedList
 import Abilities
+
 constant isdebug = false
+
 class Infected
   unit source
   unit infectedunit

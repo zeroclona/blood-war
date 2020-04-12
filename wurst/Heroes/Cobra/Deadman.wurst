@@ -1,0 +1,79 @@
+package Deadman
+import Spell
+import SpellIds
+import ClosureEvents
+import HeroEntity
+import CobraConsts
+import HashMap
+import Abilities
+import ClosureTimers
+
+boolean passiveRegistered = false
+
+class SummonedDeadman
+  /** <source, zombie> **/
+  static let list = new IterableMap<unit, unit>
+  unit source
+  unit zombie
+
+  static function findSource(unit zomb) returns unit
+    for s in list
+      if list.get(s) == zomb
+        return s
+    return null
+
+
+  construct(unit source, vec2 pos, int health, int damage)
+    //some effects?
+    zombie = createUnit(source.getOwner(), SpellIds.zombiesummoned, pos, GetRandomReal(0, bj_PI).asAngleDegrees())
+    flashEffect(Abilities.animateDeadTarget, zombie, "origin")
+    zombie
+    ..setMaxHP(health)
+    ..setHP(zombie.getMaxHP())
+    ..setBaseDamage(damage, 0)
+    ..addAbility(SpellIds.zombiepassiveabil)
+    if list.has(source)
+      list.get(source).kill()
+      flashEffect(Abilities.animateDeadTarget, list.get(source), "origin")
+    list.put(source, zombie)
+
+
+public class Deadman extends Spell
+  static let health = Cobra.Deadman.deadmanHealth
+  static let damage = Cobra.Deadman.deadmanDamage
+
+
+  construct()
+    super(SpellIds.deadman)
+    EventListener.onCast(id) (source) ->
+      print(source.getName()+" скастовал Зомби")
+      let lvl = source.getAbilityLevel(id)
+      let spr = source.getSpellPower()
+      let angle = source.getFacingAngle()
+      let x0 = source.getX() + 100. * angle.cos()
+      let y0 = source.getY() + 100. * angle.sin()
+      new SummonedDeadman(source, vec2(GetRandomReal(x0 - 40., x0 + 40.), GetRandomReal(y0 - 40., y0 + 40.)), health.run(lvl, spr), damage.run(lvl, spr))
+      if not passiveRegistered
+        passiveRegistered = true
+        EventListener.add(EVENT_PLAYER_UNIT_DEATH) ->
+          let dead = GetDyingUnit()
+          if dead.hasAbility(SpellIds.zombiepassiveabil)
+            SummonedDeadman.list.remove(SummonedDeadman.findSource(dead))
+
+          let g = CreateGroup()
+          let zombies = CreateGroup()
+          g.enumUnitsInRange(dead.getPos(), Cobra.Deadman.healRadius)
+
+          for u from g
+            if u.hasAbility(SpellIds.zombiepassiveabil)
+              zombies.addUnit(u)
+
+          for u from zombies
+            if u.isEnemyOf(dead) and u.isAlive()
+              u.addHP(dead.getMaxHP() * Cobra.Deadman.healFactor)
+              let eff = addEffect(Abilities.healTarget, u, "origin")
+              doAfter(1.) ->
+                eff.destr()
+
+init
+  new Deadman()
