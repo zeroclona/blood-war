@@ -7,14 +7,20 @@ import Sounds
 import TargetsAllowed
 import ObjectIds
 import Objects
+import HeroIds
+import SpellIds
+import ObjEditingCommons
 
 constant STD_COLLISION_SIZE = 28.
 
 public class Cobra
+  /**Cobra hero **/
+  static let id             = HeroIds.cobra
   static let name           = "Чернокнижник"
   static let propname1      = "Кобра"
   static let tooltipbasic   = "Кобра, Чернокнижник (|cffffcc00"+hotkey+"|r)"
   static let tooltipext     = "кобра дохрена черножопник"
+  static let heroAbilities  = commaList(SpellIds.vengefullightning, SpellIds.infect, SpellIds.deadman, SpellIds.bloodritual)
   static let basemagicpower = 0
   static let rangeornot     = 1
   static let baseattack     = 45
@@ -39,6 +45,7 @@ public class Cobra
   static let colsize        = STD_COLLISION_SIZE
   static let projart        = Abilities.bloodElfMissile
   static let projspeed      = 700
+  static let projarc        = 0.
   static let soundset       = "necromancer"
   static let turnrate       = 2.
   static let primattribute  = "Intelligence"
@@ -47,11 +54,13 @@ public class Cobra
 
 
   static class VengefulLgt
+    /**Vengeful lightning **/
+    static let id                           = SpellIds.vengefullightning
     static let name                         = "Мстящая молния"
     static let hotkey                       = "Q"
     static let hotkeyX                      = 0
     static let hotkeyY                      = 2
-    static DamageLevelClosure damage        = (lvl, spd) -> 100. + 60. * (lvl-1) + 2. * spd
+    static RealSPLevelClosure damage        = (lvl, spd) -> 100. + 60. * (lvl-1) + 2. * spd
     static IntLevelClosure addenemycount    = lvl -> 4
     static RealLevelClosure enemytakeradius = lvl -> 500.
     static IntLevelClosure manacost         = lvl -> 4 - (lvl / 3).toInt()
@@ -66,22 +75,72 @@ public class Cobra
     static let lgtmovetime                  = 0.5   //Время эффекта молнии
 
   static class Infection
+    /**Infection **/
+    static let id                           = SpellIds.infect
     static let name                         = "Заражение"
     static let hotkey                       = "W"
     static let hotkeyX                      = 1
     static let hotkeyY                      = 2
-    static DamageLevelClosure damage        = (lvl, spd) -> 30. + 18. * (lvl-1) + .6 * spd
+    static RealSPLevelClosure damage        = (lvl, spd) -> 30. + 18. * (lvl-1) + .6 * spd
     static IntLevelClosure manacost         = lvl -> 4 - (lvl / 3).toInt()
     static RealLevelClosure cooldown        = lvl -> 1.75 - (lvl / 4)
     static RealLevelClosure castrange       = lvl -> 750.
     static StringLevelClosure targetallowed = (int lvl) -> commaList(TargetsAllowed.air, TargetsAllowed.ground, TargetsAllowed.enemies, TargetsAllowed.organic, TargetsAllowed.neutral)
     static let dmgtype                      = DAMAGE_TYPE_MAGIC
-    static let icon                         = Icons.pASBTNPlagueCloud
+    static let icon                         = Icons.bTNPlagueCloud
     static let impactsound                  = Sounds.carrionSwarmDamage2
     static let dmgeffect                    = Abilities.poisonArrowMissile
     static let aoeeffect                    = Abilities.plagueCloudCaster
 
+  static class Deadman
+    /**Deadman ability **/
+    static let id                           = SpellIds.deadman
+    static let name                         = "Pestilent Deadman"
+    static let hotkey                       = "E"
+    static let hotkeyX                      = 2
+    static let hotkeyY                      = 2
+    static let tooltipLearn                 = "Изучить Pestilent Deadman, [|cffffcc00Уровень %d|r] (|cffffcc00R|r)"
+    static let tooltipLearnExtended         = "микрочел"
+    static StringLevelClosure tooltipNormal                = lvl -> "Pestilent Deadman, [|cffffcc00Уровень "+lvl.toString()+"|r] (|cffffcc00R|r)"
+    static StringLevelClosure tooltipNormalExtended        = lvl -> "буэээ"
+
+    static IntSPLevelClosure deadmanHealth  = (lvl, spd) -> 1000 + 100 * (lvl - 1) + (spd * 4.6).toInt()
+    static IntSPLevelClosure deadmanDamage  = (lvl, spd) -> 100 + 11 * (lvl - 1) + (spd * 0.4).toInt()
+    static let healRadius                   = 400.
+    static let healFactor                   = 0.3
+
+    static IntLevelClosure manacost         = lvl -> 4 - (lvl / 3).toInt()
+    static RealLevelClosure cooldown        = lvl -> 1.75 - (lvl / 4)
+    static let icon                         = Icons.bTNZombie
+
+    /**Zombie as summoned unit **/
+    static let zombieId                     = SpellIds.zombiesummoned
+    static let zombieBaseArmor              = 100
+    static let zombieArmorType              = ArmorType.Fortified
+    static let zombieBaseAttackTime         = 1.
+    static let zombieBaseDamage             = 30    //int
+    static let zombieAttackType             = AttackType.Spells
+    static let zombieLevel                  = 10
+    static let zombieName                   = "Зомби"
+    static let zombieTooltipBasic           = "Зомби (basic tooltip)"
+    static let zombieTooltipExtended        = "Зомби (extended tooltip)"
+    static let zombieBaseMoveSpeed          = 300
+    static let zombieHPRegen                = 0.
+    static let zombieSightRadiusDay         = 1800
+    static let zombieSightRadiusNight       = 1000
+    static let zombieTurnRate               = 1.
+
+    /**Zombie passive ability **/
+    static let healZombieAbilityId          = SpellIds.zombiepassiveabil
+    static let healZombieAbilityName        = "Какое-то название"
+    static let healZombieAbilityTooltip     = "Какое-то название пассивки"
+    static let healZombieAbilityTooltipExt  = "Ее описание"
+    static let healZombieAbilityIcon        = "ReplaceableTextures\\PassiveButtons\\pasbtnzombieconsume.dds"
+                                                //Icons.bTNCannibalize
+
   static class BloodRitual
+    /**Blood ritual **/
+    static let id                           = SpellIds.bloodritual
     static let name                         = "Ритуал крови"
     static let hotkey                       = "R"
     static let hotkeyX                      = 3
@@ -104,3 +163,9 @@ public class Cobra
     static let icon                         = Icons.bTNSacrifice
     static let impactsound                  = Sounds.carrionSwarmDamage2
     static let art                          = Objects.battrollBlood
+
+    /**Blood ritual buff **/
+    static let buffId                       = SpellIds.bloodritualbuff
+    static let buffName                     = "Ритуал крови"
+    static let buffAbilityTooltip           = "Ритуал крови"
+    static let buffAbilityTooltipExt        = "булькает"

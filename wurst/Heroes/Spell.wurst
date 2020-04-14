@@ -8,11 +8,11 @@ public interface DamageFilterClosure
 
 public constant DamageFilterClosure STD_DFC_CLOSURE = (s, t) -> t.isAlive() and s.isEnemyOf(t) and not t.isType(UNIT_TYPE_STRUCTURE) and not t.isType(UNIT_TYPE_MAGIC_IMMUNE) and not t.hasAbility('Aloc')
 
-public interface DamageLevelClosure
+public interface RealSPLevelClosure
   function run(int lvl, real spellpower) returns real
 
-
-
+public interface IntSPLevelClosure
+  function run(int lvl, real spellpower) returns int
 
 public function stdTargetCheck(unit u) returns bool
   return u.isAlive() and not u.isType(UNIT_TYPE_MAGIC_IMMUNE) and not u.isType(UNIT_TYPE_STRUCTURE) and not u.hasAbility('Aloc')

@@ -41,7 +41,7 @@ class OnDamageHint
   var pllist = new LinkedList<player>
 
   function call(player p)
-    if not pllist.contains(p)
+    if not pllist.has(p)
       pllist.add(p)
       hint(p, "При нанесении урона "+"Демону".toDemonColorString()+" вы востанавливаете здоровье в размере " + I2S(R2I(vampFactor*100+.1))+"% от нанесенного урона.")
       if pllist.size() >= 7

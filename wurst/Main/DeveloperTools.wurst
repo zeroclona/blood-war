@@ -1,0 +1,123 @@
+package DeveloperTools
+import ObjectIdGenerator
+import AbilityObjEditing
+import DummyDamage
+import ClosureEvents
+let enabledeveloper = true
+
+public let DEVBLINK_ID = compiletime(enabledeveloper? ABIL_ID_GEN.next() : 0)
+var wtfstate = false
+var wtfregistered = false
+string tempstr
+
+function refreshAllUnits()
+  let g = GetUnitsInRectAll(GetWorldBounds())
+  ForGroup(g) ->
+    GetEnumUnit()
+    ..setHP(GetEnumUnit().getMaxHP())
+    ..setMana(GetEnumUnit().getMaxMana())
+    ..resetCooldown()
+  g.destr()
+
+function switchWtfMode()
+  wtfstate = not wtfstate
+  if wtfstate
+    refreshAllUnits()
+    if not wtfregistered
+      wtfregistered = true
+      EventListener.add(EVENT_PLAYER_UNIT_SPELL_EFFECT) ->
+        if wtfstate
+          refreshAllUnits()
+
+function string.trimUntilSpace() returns string
+  let i = this.indexOf(" ")
+  if i < 13
+    return this.substring(0, i)
+  return ""
+
+function devRegisterChatStrings()
+  let trg = CreateTrigger()
+  for i = 0 to bj_MAX_PLAYERS
+    trg.registerPlayerChatEvent(players[i], "", false)
+
+  trg.addAction() ->
+    let p = GetTriggerPlayer()
+    let firstsymbol = GetEventPlayerChatString().substring(0, 1)
+    if firstsymbol == "-" or firstsymbol == "/" or firstsymbol == "_"
+      let str = GetEventPlayerChatString().substring(1)
+      switch str.trimUntilSpace()
+        case "addblink"
+          EnumUnitsSelected(p, null) ->
+            if GetEnumUnit().getAbilityLevel(DEVBLINK_ID) == 0
+              GetEnumUnit().addAbility(DEVBLINK_ID)
+        case "lvlup"
+          let lvlup = str.substring(6).toInt()
+          SyncSelections()
+          let g = CreateGroup()
+          GroupEnumUnitsSelected(g, p, null)
+          for u from g
+            u.addLevels(lvlup, true)
+          g.destr()
+        case "gold"
+          p.addGold(str.substring(5).toInt())
+        case "refresh"
+          EnumUnitsSelected(p, null) ->
+            GetEnumUnit()
+            ..setHP(GetEnumUnit().getMaxHP())
+            ..setMana(GetEnumUnit().getMaxMana())
+            ..resetCooldown()
+        case "kill"
+          EnumUnitsSelected(p, null) ->
+            new DummyDamage()
+            ..attacker(GetTriggerPlayer())
+            ..target(GetEnumUnit())
+            ..amount(999999.)
+            ..damageType(DAMAGE_TYPE_DIVINE)
+            ..apply()
+            ..apply()
+            ..apply(true)
+        case "wtf"
+          switchWtfMode()
+        case "d2t" //damage target
+          tempstr = str
+          EnumUnitsSelected(p, null) ->
+            var suffix = tempstr.substring(4, 6)
+            if not (suffix == "ph" or suffix == "mg")
+              suffix = null
+            new DummyDamage()
+            ..attacker(GetTriggerPlayer())
+            ..target(GetEnumUnit())
+            ..amount(tempstr.substring(suffix==null? 4 : 7 ).toReal())
+            ..damageType(suffix==null? DAMAGE_TYPE_DIVINE : (suffix=="ph"? DAMAGE_TYPE_NORMAL : DAMAGE_TYPE_MAGIC) )
+            ..apply(true)
+            tempstr = ""
+
+        //case "gamestart"
+        //case "tulen"
+        //case "help"
+        //case "anim"
+
+        default
+
+init
+  if enabledeveloper
+    devRegisterChatStrings()
+
+
+@compiletime function genObj()
+  if enabledeveloper
+    new AbilityDefinitionWardenBlink(DEVBLINK_ID)
+    ..setHeroAbility(false)
+    ..setName("imba Blink")
+    ..setButtonPositionNormalX(1)
+    ..setButtonPositionNormalY(1)
+    ..setHotkeyNormal("F")
+    ..setHotkeyLearn("F")
+    ..setLevels(1)
+    ..setRequiredLevel(1)
+    ..setCooldown(1, 0)
+    ..setCastRange(1, 999999.)
+    ..setManaCost(1, 0)
+    ..addTooltipProperty("Hotkey", (int lvl) -> "F")
+    ..setMaximumRange(1, 999999.)
+    ..setMinimumRange(1, 0.)
