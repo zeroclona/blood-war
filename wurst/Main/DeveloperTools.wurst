@@ -29,34 +29,37 @@ function switchWtfMode()
         if wtfstate
           refreshAllUnits()
 
+function string.trimUntilSpace() returns string
+  let i = this.indexOf(" ")
+  if i < 13
+    return this.substring(0, i)
+  return ""
+
 function devRegisterChatStrings()
   let trg = CreateTrigger()
   for i = 0 to bj_MAX_PLAYERS
     trg.registerPlayerChatEvent(players[i], "", false)
 
   trg.addAction() ->
-    let str = GetEventPlayerChatString()
     let p = GetTriggerPlayer()
-    let firstsymbol = str.substring(0, 1)
+    let firstsymbol = GetEventPlayerChatString().substring(0, 1)
     if firstsymbol == "-" or firstsymbol == "/" or firstsymbol == "_"
-      switch str.substring(1)
+      let str = GetEventPlayerChatString().substring(1)
+      switch str.trimUntilSpace()
         case "addblink"
           EnumUnitsSelected(p, null) ->
             if GetEnumUnit().getAbilityLevel(DEVBLINK_ID) == 0
               GetEnumUnit().addAbility(DEVBLINK_ID)
         case "lvlup"
-          let lvlup = str.substring(7).toInt()
+          let lvlup = str.substring(6).toInt()
           SyncSelections()
           let g = CreateGroup()
           GroupEnumUnitsSelected(g, p, null)
-          unit f = FirstOfGroup(g)
-          while f != null
-            f.addLevels(lvlup, true)
-            f = FirstOfGroup(g)
-            g.removeUnit(f)
+          for u from g
+            u.addLevels(lvlup, true)
           g.destr()
         case "gold"
-          p.addGold(str.substring(6).toInt())
+          p.addGold(str.substring(5).toInt())
         case "refresh"
           EnumUnitsSelected(p, null) ->
             GetEnumUnit()
@@ -78,13 +81,13 @@ function devRegisterChatStrings()
         case "d2t" //damage target
           tempstr = str
           EnumUnitsSelected(p, null) ->
-            var suffix = tempstr.substring(5, 7)
+            var suffix = tempstr.substring(4, 6)
             if not (suffix == "ph" or suffix == "mg")
               suffix = null
             new DummyDamage()
             ..attacker(GetTriggerPlayer())
             ..target(GetEnumUnit())
-            ..amount(tempstr.substring(suffix==null? 5 : 8 ).toReal())
+            ..amount(tempstr.substring(suffix==null? 4 : 7 ).toReal())
             ..damageType(suffix==null? DAMAGE_TYPE_DIVINE : (suffix=="ph"? DAMAGE_TYPE_NORMAL : DAMAGE_TYPE_MAGIC) )
             ..apply(true)
             tempstr = ""

@@ -87,7 +87,7 @@ public class Cobra
     static RealLevelClosure castrange       = lvl -> 750.
     static StringLevelClosure targetallowed = (int lvl) -> commaList(TargetsAllowed.air, TargetsAllowed.ground, TargetsAllowed.enemies, TargetsAllowed.organic, TargetsAllowed.neutral)
     static let dmgtype                      = DAMAGE_TYPE_MAGIC
-    static let icon                         = Icons.pASBTNPlagueCloud
+    static let icon                         = Icons.bTNPlagueCloud
     static let impactsound                  = Sounds.carrionSwarmDamage2
     static let dmgeffect                    = Abilities.poisonArrowMissile
     static let aoeeffect                    = Abilities.plagueCloudCaster
@@ -135,7 +135,8 @@ public class Cobra
     static let healZombieAbilityName        = "Какое-то название"
     static let healZombieAbilityTooltip     = "Какое-то название пассивки"
     static let healZombieAbilityTooltipExt  = "Ее описание"
-    static let healZombieAbilityIcon        = Icons.bTNCannibalize
+    static let healZombieAbilityIcon        = "ReplaceableTextures\\PassiveButtons\\pasbtnzombieconsume.dds"
+                                                //Icons.bTNCannibalize
 
   static class BloodRitual
     /**Blood ritual **/

@@ -125,6 +125,7 @@ import BuffObjEditing
   ..presetTargetsAllowed(lvl -> TargetsAllowed.none)
   ..presetHotkey(Cobra.BloodRitual.hotkey)
   ..setName(Cobra.BloodRitual.name)
+  ..setTooltipNormal(1, color(185, 84, 84).toColorString()+"Мана: 100")
   ..setIconTurnOff(Cobra.BloodRitual.icon)
   ..setIconResearch(Cobra.BloodRitual.icon)
   ..setIconNormal(Cobra.BloodRitual.icon)

@@ -33,8 +33,8 @@ class SummonedDeadman
     ..setBaseDamage(damage, 0)
     ..addAbility(SpellIds.zombiepassiveabil)
     if list.has(source)
-      list.get(source).kill()
       flashEffect(Abilities.animateDeadTarget, list.get(source), "origin")
+      list.get(source).kill()
     list.put(source, zombie)
 
 

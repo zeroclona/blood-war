@@ -1,5 +1,5 @@
 ---
-projectName: Blood War wurst build 2
+projectName: Blood War wurst build 5
 dependencies:
 - https://github.com/wurstscript/wurstStdlib2
 - https://github.com/Frotty/Frentity
