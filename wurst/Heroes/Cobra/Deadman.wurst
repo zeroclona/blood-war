@@ -52,7 +52,7 @@ public class Deadman extends Spell
       let angle = source.getFacingAngle()
       let x0 = source.getX() + 100. * angle.cos()
       let y0 = source.getY() + 100. * angle.sin()
-      new SummonedDeadman(source, vec2(GetRandomReal(x0 - 40., x0 + 40.), GetRandomReal(y0 - 40., y0 + 40.)), health.run(lvl, spr), damage.run(lvl, spr))
+      new SummonedDeadman(source, vec2(GetRandomReal(x0 - 40., x0 + 40.), GetRandomReal(y0 - 40., y0 + 40.)), health.run(lvl, spr).toInt(), damage.run(lvl, spr).toInt())
       if not passiveRegistered
         passiveRegistered = true
         EventListener.add(EVENT_PLAYER_UNIT_DEATH) ->

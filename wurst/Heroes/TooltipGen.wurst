@@ -1,0 +1,238 @@
+package TooltipGen
+import AbilityTooltipGenerator
+import public ChannelAbilityPreset
+import ObjEditingNatives
+import LinkedList
+import HashMap
+import Spell
+import String
+
+//Чумной мертвец.
+//Мана: 120
+//КД: 25
+//Призывает подчиняющегося вам зомби со здоровьем, равным 230/345/460/575/690 (+4.6*сила магии) и атакой,
+//равной 20/30/40/50/60 (+0.4*сила магии). Зомби атакует раз в 1.1 сек. Если в радиусе 400 от него погибает противник,
+// то зомби восстанавливает 30% от вражеского максимального запаса здоровья. Одновременно может существовать только один мертвец.
+
+
+
+//Призывает подчиняющегося вам зомби со здоровьем, равным $property1$ (+$property1powered$*сила магии) и атакой,
+//равной $property2$ (+$property2powered$*сила магии). Зомби атакует раз в 1.1 сек. Если в радиусе 400 от него погибает противник,
+// то зомби восстанавливает 30% от вражеского максимального запаса здоровья. Одновременно может существовать только один мертвец.
+
+
+
+@configurable constant TITLE_COLOR = "|cff3B97D3"
+@configurable constant PASSIVE_COLOR = "|cff1d557a"
+@configurable constant CHANNEL_COLOR = "|cff14ca1d"
+@configurable constant MANACOST_COLOR = "|cff14ca1d"
+@configurable constant COOLDOWN_COLOR = "|cff14ca1d"
+@configurable constant CASTRANGE_COLOR = "|cff14ca1d"
+@configurable constant SPECIAL_COLOR = "|cff14ca1d"
+@configurable constant TITLE_TTYPE = "Тип цели:"
+@configurable constant MAX_TITLES = 10
+@configurable constant LEARN_PATTERN = "|cffFFCC00Выучить|r $name$ - [|cffffcc00Уровень %d|r]"
+@configurable constant NORMAL_ACTIVE_PATTERN = "$name$ - Уровень $lvl$"// [|cffFFCC00$hotkey$|r]"
+@configurable constant NORMAL_PASSIVE_PATTERN = "$name$ - Уровень $lvl$"
+
+public enum Spelltype
+  ACTIVE
+  PASSIVE
+  CHANNEL
+
+
+
+public class AbilTtipMaker implements TooltipGenerator
+  private constant propMap = new IterableMap<string, StringLevelClosure>
+  private constant specPropMap = new IterableMap<string, StringLevelClosure>
+  private constant descPropMap = new IterableMap<string, StringLevelClosure>
+  private var currentDescProperty = 0
+  private var description = ""
+
+  private var levels = 1
+  private var hotkey = ""
+  private var name = ""
+  private var spelltype = Spelltype.ACTIVE
+
+  construct(string description)
+    this.description = description
+
+  construct()
+
+  override function addProperty(string title, StringLevelClosure lc)
+    propMap.put(title, lc)
+
+  function addSpecialProperty(string title, StringLevelClosure lc)
+    specPropMap.put(title, lc)
+
+  function addDescriptionProperty(StringLevelClosure prop, StringLevelClosure proppowered)
+    currentDescProperty++
+    specPropMap.put("property"+currentDescProperty.toString(), prop)
+    if proppowered != null
+      specPropMap.put("property"+currentDescProperty.toString()+" powered", proppowered)
+
+  function addDescriptionProperty(StringLevelClosure lc)
+    addDescriptionProperty( (lvl -> lc.run(lvl)), null)
+
+  function addDescriptionProperty(IntLevelClosure lc)
+    addDescriptionProperty( (lvl -> lc.run(lvl).toString()), null)
+
+  function addDescriptionProperty(RealLevelClosure lc)
+    addDescriptionProperty( (lvl -> (lc.run(lvl)+.1).toInt().toString()), null)
+
+  function addDescriptionProperty(BooleanLevelClosure lc)
+    addDescriptionProperty( (lvl -> lc.run(lvl).toString()), null)
+
+  function addDescriptionProperty(RealSPLevelClosure lc)
+    let zeroedclosure = lc.run(1, 0)
+    addDescriptionProperty( (lvl -> (lc.run(lvl, 0)+.1).toInt().toString()), (lvl -> (lc.run(1, 1)-zeroedclosure).toString(1)) )
+
+  /**Возможно если значение spellpower дробное, оно округлится!*/
+  function addDescriptionProperty(IntSPLevelClosure lc)
+    let zeroedclosure = lc.run(1, 0)
+    addDescriptionProperty( (lvl -> lc.run(lvl, 0).toString()), (lvl -> (lc.run(1, 1)-zeroedclosure).toString()) )
+
+  override function applyToDef(AbilityDefinition def)
+    levels = propMap.has("Levels") ? fixValue(propMap.getAndRemove("Levels").run(0)).toInt() : 1
+    name = propMap.has("Name") ? propMap.getAndRemove("Name").run(0) : "Нет названия"
+    //hotkey = propMap.has("Hotkey") ? propMap.getAndRemove("Hotkey").run(0) : "Q"
+    spelltype = propMap.has("Spelltype") ? propMap.getAndRemove("Spelltype").run(0).toInt() castTo Spelltype : Spelltype.ACTIVE
+
+
+    def..setTooltipLearn(generateTooltipLearn())
+    ..setTooltipLearnExtended(generateTooltipExtended(-1, true))
+    for i = 1 to levels
+      def..setTooltipNormal(i, generateTooltipNormal(i))
+      ..setTooltipNormalExtended(i, generateTooltipExtended(i, false))
+
+  private function generateTooltipLearn() returns string
+    return replaceRefs(LEARN_PATTERN)
+
+  private function generateTooltipNormal(int lvl) returns string
+    return replaceRefs(NORMAL_ACTIVE_PATTERN, lvl)
+
+  private function replaceRefs(string old, int lvl) returns string
+    var newString = old
+    newString = newString.replace("$name$", name)
+    newString = newString.replace("$lvl$", lvl.toString())
+    return newString
+
+  private function replaceRefs(string old) returns string
+    var newString = old
+    newString = newString.replace("$name$", name)
+    return newString
+
+
+  private function generateTooltipExtended(int lvl, boolean learn) returns string
+    var s = ""
+    if spelltype == Spelltype.PASSIVE
+      s += PASSIVE_COLOR + "Пассивная|r\n"
+    else if spelltype == Spelltype.CHANNEL
+      s += CHANNEL_COLOR + "Поддерживаемая|r\n"
+
+    if learn
+      s += MANACOST_COLOR + "Стоимость:|r " + colorLevelValue(getPropLeveledString(propMap,"Mana Cost"), lvl, levels) + "\n"
+    s += COOLDOWN_COLOR + "Перезарядка:|r " + colorLevelValue(getPropLeveledString(propMap,"Cooldown"), lvl, levels) + "\n"
+    for key in specPropMap
+      if key.contains("Cast Range")
+        s += CASTRANGE_COLOR + "Дальность применения:|r " + colorLevelValue(getPropLeveledString(propMap,"Cast Range"), lvl, levels) + "\n"
+      else if not key.contains("property")
+        s += SPECIAL_COLOR + key + ":|r" + colorLevelValue(getPropLeveledString(propMap,key), lvl, levels) + "\n"
+
+    s+= "\n"
+    //for i = 1 to levels
+    var j = 1
+    var qqq = 0
+    while(true)
+      if description.contains("property"+j.toString())
+        let prop = "$property"+j.toString()+"$"
+        let proppowered = "$property"+j.toString()+"powered$"
+        if specPropMap.get("property"+j.toString()) != null
+          var tmpstr1 = getPropLeveledString(specPropMap, "property"+j.toString())
+          var tmpstr2 = getPropLeveledString(specPropMap, "property"+j.toString()+" powered")
+            //print(tmpstr1)
+            //print(tmpstr2)
+          //description.replace(oldSubstring, newSubstring)
+          description = description.replace(prop, tmpstr1)
+          description = description.replace(proppowered, tmpstr2)
+          //print(description)
+        else
+          break
+      else
+        break
+      j++
+    s += description
+    return s
+
+  private function getPropLeveledString(IterableMap<string, StringLevelClosure> map, string propKey) returns string
+    if map.get(propKey) != null
+      var outstr = map.get(propKey).run(1)
+      var counter = 2
+      bool doesnotChangeByLevel = true
+      while(counter <= levels and doesnotChangeByLevel)
+        if map.get(propKey).run(counter) != outstr
+          doesnotChangeByLevel = false
+        counter++
+      if not doesnotChangeByLevel
+        for i = 2 to levels
+          outstr += "/" + fixValue(map.get(propKey).run(i))
+      map.remove(propKey)
+      return outstr
+    return ""
+
+  private static function fixValue(string value) returns string
+    var s = value
+    if s.endsWith(".")
+      s = s.substring(0, s.length()-1)
+    else if s.length() > 1 and s.endsWith(".0")
+      s = s.substring(0, s.length()-2)
+    return s
+
+  private static function colorLevelValue(string oldString, int lvl, int maxLevel) returns string
+    var _newString = ""
+    var charCount = 0
+    var charPosCount = 0
+    int array charPos
+    for char in oldString
+      if char == "/"
+        charPos[charPosCount] = charCount
+        charPosCount++
+      charCount++
+    if lvl == -1
+      _newString = oldString
+    else if charPosCount <= 0
+      _newString = "|cffFFCC00" + oldString
+    else if maxLevel <= 1
+      _newString = "|cffFFCC00" + oldString
+    else if lvl == 1
+      _newString = "|cffFFCC00" + oldString.substring(0, charPos[0]) + "|r" + oldString.substring(charPos[0], oldString.length())
+    else if lvl == maxLevel
+      _newString = oldString.substring(0, charPos[lvl-2]) + "|cffFFCC00" + oldString.substring(charPos[lvl-2], oldString.length()) + "|r"
+    else
+      _newString = oldString.substring(0, charPos[lvl-2]) + "|cffFFCC00" + oldString.substring(charPos[lvl-2], charPos[lvl-1]) + "|r" + oldString.substring(charPos[lvl-1], oldString.length())
+    return _newString
+
+init
+  /*CreateTrigger()..registerPlayerChatEvent(players[0], "", false)
+  ..addAction() ->
+    let str = GetEventPlayerChatString()
+    if str == "add passive"
+      EnumUnitsSelected(GetTriggerPlayer(), null) ->
+        GetEnumUnit()
+          ..addAbility('A555')*/
+
+
+@compiletime function gen()
+  /*IntLevelClosure abc = (int lvl) -> Targettype.PASSIVE castTo int
+
+  new AbilityDefinitionMountainKingBash('A555')
+  ..registerTooltipGenerator( new AbilTtipMaker("Desc"))
+  ..tooltipStartListen()
+  ..addTooltipProperty("Targettype", abc)
+
+  ..tooltipStopListen(true)*/
+@test function testttips()
+  string str = "No one seen my message FeelsWeirdMan"
+  print(str)
+  str = str.replace("ee", "H")
+  print(str)

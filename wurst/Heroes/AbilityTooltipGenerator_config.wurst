@@ -1,0 +1,9 @@
+package AbilityTooltipGenerator_config
+
+
+// @config constant TITLE_COLOR = "|cff3B97D3"
+// @config constant TITLE_TTYPE = "Тип цели:"
+// @config constant MAX_TITLES = 10
+// @config constant LEARN_PATTERN = "|cffFFCC00Выучить|r $name$ - [|cffffcc00Уровень %d|r]"
+// @config constant NORMAL_ACTIVE_PATTERN = "$name$ - Уровень $lvl$ [|cffFFCC00$hotkey$|r]"
+// @config constant NORMAL_PASSIVE_PATTERN = "$name$ - Уровень $lvl$"

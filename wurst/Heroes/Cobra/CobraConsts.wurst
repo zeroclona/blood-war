@@ -104,8 +104,8 @@ public class Cobra
     static StringLevelClosure tooltipNormal                = lvl -> "Pestilent Deadman, [|cffffcc00Уровень "+lvl.toString()+"|r] (|cffffcc00R|r)"
     static StringLevelClosure tooltipNormalExtended        = lvl -> "буэээ"
 
-    static IntSPLevelClosure deadmanHealth  = (lvl, spd) -> 1000 + 100 * (lvl - 1) + (spd * 4.6).toInt()
-    static IntSPLevelClosure deadmanDamage  = (lvl, spd) -> 100 + 11 * (lvl - 1) + (spd * 0.4).toInt()
+    static RealSPLevelClosure deadmanHealth  = (lvl, spd) -> 1000 + 100 * (lvl - 1) + (spd * 4.6)
+    static RealSPLevelClosure deadmanDamage  = (lvl, spd) -> 100 + 11 * (lvl - 1) + (spd * 0.4)
     static let healRadius                   = 400.
     static let healFactor                   = 0.3
 

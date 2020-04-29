@@ -9,6 +9,7 @@ import SpellIds
 import CobraConsts
 import AbilityTooltipGenerator
 import BuffObjEditing
+import TooltipGen
 
 
 @compiletime function genObj()
@@ -97,21 +98,28 @@ import BuffObjEditing
   ..setLevelSkipRequirement(0)
   ..tooltipStopListen()
 
-  new ChannelAbilityPreset(Cobra.Deadman.id, 5, true, new AbilityTooltipGenerator("бу") )
+
+  let cdttip = new AbilTtipMaker("Призывает подчиняющегося вам зомби со здоровьем, равным $property1$ (+$property1powered$*сила магии) и атакой, равной $property2$ (+$property2powered$*сила магии). Зомби атакует раз в 1.1 сек. Если в радиусе 400 от него погибает противник, то зомби восстанавливает 30% от вражеского максимального запаса здоровья. Одновременно может существовать только один мертвец.")
+  ..addDescriptionProperty( Cobra.Deadman.deadmanHealth )
+  ..addDescriptionProperty( Cobra.Deadman.deadmanDamage )
+  new ChannelAbilityPreset(Cobra.Deadman.id, 5, true, cdttip )
+  ..tooltipStartListen()
   ..setHeroAbility(true)
   ..setLevels(5)
   ..presetButtonPosNormal(Cobra.Deadman.hotkeyX, Cobra.Deadman.hotkeyY)
   ..setButtonPositionResearchX(Cobra.Deadman.hotkeyX)
   ..presetTargetTypes(Targettype.NONE)
-  ..tooltipStartListen()
+  ..setLevelSkipRequirement(0)
   ..presetHotkey(Cobra.Deadman.hotkey)
   ..setName(Cobra.Deadman.name)
   ..setIconResearch(Cobra.Deadman.icon)
   ..setIconNormal(Cobra.Deadman.icon)
   ..presetCooldown(Cobra.Deadman.cooldown)
   ..presetManaCost(Cobra.Deadman.manacost)
-  ..setLevelSkipRequirement(0)
   ..tooltipStopListen()
+
+
+
 
   new AbilityDefinitionDemonHunterImmolation(Cobra.BloodRitual.id)
   ..setHeroAbility(true)
