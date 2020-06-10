@@ -12,6 +12,7 @@ constant badRespPointCenter =  vec2(3880., 3750.)
 
 public class TeamData
   real incomeTeam
+  player teamPlayer
   var playerList = new LinkedList<PlayerData>
 
   function respPoint() returns vec2
@@ -43,3 +44,5 @@ public function TeamData.printTimed(string msg, real duration)
     printTimedToPlayer(msg, duration, pd.p)
 
 public function initTeams()
+  baddies.teamPlayer = players[14]
+  goodies.teamPlayer = players[15]

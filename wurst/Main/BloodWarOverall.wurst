@@ -1,5 +1,6 @@
 package BloodWarOverall
 import Sounds
+import FText
 public let goodColor = "peach".toColor()
 public let badColor = "violet".toColor()
 public let playerCount = 8
@@ -24,3 +25,8 @@ public function msgError( player p, string s)
     PlaySound(Sounds.error)
   //KillSoundWhenDone(m)
   //m = null
+
+public function goldTextUp( string text, vec3 pos, real size )
+  let xvel = 0.0355 * Cos(90. * bj_DEGTORAD)
+  let yvel = 0.0355 * Sin(90. * bj_DEGTORAD)
+  createFText(pos, text, (size * 0.023) / 10, 2.5, vec2(xvel, yvel), COLOR_GOLD)

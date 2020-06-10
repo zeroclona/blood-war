@@ -2,45 +2,97 @@ package Mines
 import TimerUtils
 import TeamData
 import ClosureTimers
+import BloodWarOverall
+import FText
+import Textures
 //убрать кружочки, оставить только шахты, нетральны, 4 удара героя. захватывается командой над ней появляется таймер 45 сек. Она начинает давать золото захватившему и его команде.
 // Неуязвима в этот период времени.
 // Спустя 45 сек появляется появляется еще таймер 45 сек другого цвета, шахта становится уязвима. После становится нейтральной. У всех всегда есть обзор на шахту
 //при захвате появляется хероглоу и вылетают цифры золота (командного и личного)
 constant ATTACKS_TO_CAPTURE = 4
-constant CAPTURED_FIRST_PERIOD = 45.
-constant CAPTURED_SECOND_PERIOD = 45.
+constant CAPTURED_FIRST_TIME = 45.
+constant CAPTURED_SECOND_TIME = 45.
+constant GOLD_TAG_SIZE = 5.
+constant GOLD_TEAM_ZOFFSET = 5.
+constant GOLD_CAPSELF_ZOFFSET = 7.
+constant GOLD_GATHER_AMOUNT = 1
+constant COUNTDOWN_TAG_SIZE = 10.
+constant COUNTDOWN_ZOFFSET = 15.
+constant GATHER_PERIOD = 1.
 
 class GoldMine
-  static CallbackSingle time
+  static CallbackCounted time
   private vec2 pos
   bool takenByBadTeam = false // true - культ(правые), false - орден(левые)
   bool isNeutral = true
   unit self
-  real captureRemain = 0.
+  FText countdown
+  unit capturedGuy
+  real moneyGathered = 0 //by captureGuy
+  private effect texture
+
+  private function addGold(TeamData td)
+    td.addGold(GOLD_GATHER_AMOUNT)
+    goldTextUp("+1",self.getPos3with(GOLD_TEAM_ZOFFSET), GOLD_TAG_SIZE)
+    moneyGathered += 0.25
+    if moneyGathered >= GOLD_GATHER_AMOUNT.toReal()
+      goldTextUp(capturedGuy.getOwner().getNameColored()+"+1",self.getPos3with(GOLD_CAPSELF_ZOFFSET), GOLD_TAG_SIZE)
+      capturedGuy.getPlayerData().addGold(GOLD_GATHER_AMOUNT)
+      moneyGathered -= GOLD_GATHER_AMOUNT
+
+  private function doCapturing(TeamData td)
+    rebuildMine()
+    self.setOwner(td.teamPlayer, true)
+    self.setInvulnerable(true)
+    texture = self.addEffect(td==baddies?Textures.teamGlow15:Textures.teamGlow14, "origin")
+
+    destroy time
+    countdown = createCenterFText(self.getPos3with(COUNTDOWN_ZOFFSET), CAPTURED_FIRST_TIME.toInt().toString(), COUNTDOWN_TAG_SIZE)
+    countdown.tt.setColor(50, 50, 50, 0)
+    doPeriodicallyTimed(GATHER_PERIOD, CAPTURED_FIRST_TIME) cb ->
+      countdown.tt.setText(cb.getCount().toString(), COUNTDOWN_TAG_SIZE)
+      addGold(td)
+
+      if cb.isLast()
+        self.setInvulnerable(false)
+        countdown.tt
+          ..setColor(200, 200, 200, 0)
+          ..setText(CAPTURED_SECOND_TIME.toInt().toString(), COUNTDOWN_TAG_SIZE)
+
+        time = doPeriodicallyTimed(GATHER_PERIOD, CAPTURED_SECOND_TIME) cb ->
+          countdown.tt.setText(cb.getCount().toString(), COUNTDOWN_TAG_SIZE)
+          addGold(td)
+          if cb.isLast()
+            setNeutral()
+            destroy countdown
 
   function captureBy(unit source)
     if source.getPlayerData().team == baddies
+      capturedGuy = source
       takenByBadTeam = true
       isNeutral = false
-      rebuildMine()
-      self.setInvulnerable(true)
-      destroy time
-      doAfter(CAPTURED_FIRST_PERIOD) ->
-        self.setInvulnerable(false)
-        time = doAfter(CAPTURED_SECOND_PERIOD) ->
-          isNeutral = true
+      doCapturing(baddies)
 
     else if source.getPlayerData().team == goodies
+      capturedGuy = source
       takenByBadTeam = true
       isNeutral = false
-      rebuildMine()
+      doCapturing(goodies)
 
     else
-      isNeutral = true
       rebuildMine()
+      setNeutral()
+
+
 
   private function setNeutral()
     isNeutral = true
+    self.setOwner(players[GetPlayerNeutralAggressive()], true)
+    texture.destr()
+    capturedGuy = null
+    moneyGathered = 0
+    if countdown != null
+      destroy countdown
 
   private function rebuildMine()
     if self !=null
