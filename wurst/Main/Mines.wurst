@@ -1,0 +1,55 @@
+package Mines
+import TimerUtils
+import TeamData
+import ClosureTimers
+//убрать кружочки, оставить только шахты, нетральны, 4 удара героя. захватывается командой над ней появляется таймер 45 сек. Она начинает давать золото захватившему и его команде.
+// Неуязвима в этот период времени.
+// Спустя 45 сек появляется появляется еще таймер 45 сек другого цвета, шахта становится уязвима. После становится нейтральной. У всех всегда есть обзор на шахту
+//при захвате появляется хероглоу и вылетают цифры золота (командного и личного)
+constant ATTACKS_TO_CAPTURE = 4
+constant CAPTURED_FIRST_PERIOD = 45.
+constant CAPTURED_SECOND_PERIOD = 45.
+
+class GoldMine
+  static CallbackSingle time
+  private vec2 pos
+  bool takenByBadTeam = false // true - культ(правые), false - орден(левые)
+  bool isNeutral = true
+  unit self
+  real captureRemain = 0.
+
+  function captureBy(unit source)
+    if source.getPlayerData().team == baddies
+      takenByBadTeam = true
+      isNeutral = false
+      rebuildMine()
+      self.setInvulnerable(true)
+      destroy time
+      doAfter(CAPTURED_FIRST_PERIOD) ->
+        self.setInvulnerable(false)
+        time = doAfter(CAPTURED_SECOND_PERIOD) ->
+          isNeutral = true
+
+    else if source.getPlayerData().team == goodies
+      takenByBadTeam = true
+      isNeutral = false
+      rebuildMine()
+
+    else
+      isNeutral = true
+      rebuildMine()
+
+  private function setNeutral()
+    isNeutral = true
+
+  private function rebuildMine()
+    if self !=null
+      self.remove()
+    self = createUnit(players[GetPlayerNeutralAggressive()], 'A000', pos, angle(0))
+    self
+    ..setMaxHP(ATTACKS_TO_CAPTURE)
+    ..setHP(ATTACKS_TO_CAPTURE.toReal())
+
+  construct(vec2 minePos)
+    pos = minePos
+    rebuildMine()
