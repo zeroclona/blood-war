@@ -45,12 +45,12 @@ public enum Spelltype
 public class AbilTtipMaker implements TooltipGenerator
   private constant propMap = new IterableMap<string, StringLevelClosure>
   private constant specPropMap = new IterableMap<string, StringLevelClosure>
-  private constant descPropMap = new IterableMap<string, StringLevelClosure>
+  //private constant descPropMap = new IterableMap<string, StringLevelClosure>
   private var currentDescProperty = 0
   private var description = ""
 
   private var levels = 1
-  private var hotkey = ""
+  //private var hotkey = ""
   private var name = ""
   private var spelltype = Spelltype.ACTIVE
 
@@ -84,13 +84,11 @@ public class AbilTtipMaker implements TooltipGenerator
     addDescriptionProperty( (lvl -> lc.run(lvl).toString()), null)
 
   function addDescriptionProperty(RealSPLevelClosure lc)
-    let zeroedclosure = lc.run(1, 0)
-    addDescriptionProperty( (lvl -> (lc.run(lvl, 0)+.1).toInt().toString()), (lvl -> (lc.run(1, 1)-zeroedclosure).toString(1)) )
+    addDescriptionProperty( (lvl -> (lc.run(lvl, 0)+.1).toInt().toString()), (lvl -> lc.getSP().toString(1)) )
 
   /**Возможно если значение spellpower дробное, оно округлится!*/
   function addDescriptionProperty(IntSPLevelClosure lc)
-    let zeroedclosure = lc.run(1, 0)
-    addDescriptionProperty( (lvl -> lc.run(lvl, 0).toString()), (lvl -> (lc.run(1, 1)-zeroedclosure).toString()) )
+    addDescriptionProperty( (lvl -> lc.run(lvl, 0).toString()), lvl -> lc.getSP().toString())
 
   override function applyToDef(AbilityDefinition def)
     levels = propMap.has("Levels") ? fixValue(propMap.getAndRemove("Levels").run(0)).toInt() : 1

@@ -11,8 +11,17 @@ public constant DamageFilterClosure STD_DFC_CLOSURE = (s, t) -> t.isAlive() and 
 public interface RealSPLevelClosure
   function run(int lvl, real spellpower) returns real
 
+
+  function getSP() returns real
+    return this.run(1,1) - this.run(1, 0)
+
+/**Not sure to use*/
 public interface IntSPLevelClosure
   function run(int lvl, real spellpower) returns int
+
+  /**Возможно, возвращает неверное значение!*/
+  function getSP() returns real
+    return (this.run(1,100) - this.run(1, 0))/100
 
 public function stdTargetCheck(unit u) returns bool
   return u.isAlive() and not u.isType(UNIT_TYPE_MAGIC_IMMUNE) and not u.isType(UNIT_TYPE_STRUCTURE) and not u.hasAbility('Aloc')
